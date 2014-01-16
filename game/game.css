@@ -1,11 +1,7 @@
 
 body {
-  background-color: #F8F8F8;
-  font-family: 'Open Sans', sans-serif;
-  font-size: 14px;
-  font-weight: normal;
-  line-height: 1.2em;
-  margin: 15px;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 h1, p {
@@ -24,4 +20,31 @@ h1, p {
   font-size: 24pt;
   text-align: center;
   margin-top: 140px;
+}
+
+.header,
+.marketing,
+.footer {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.header {
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 30px;
+}
+
+.header h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+  padding-bottom: 19px;
+}
+
+.container {
+  max-width: 730px;
+}
+
+.log {
+  margin-top: 40px;
 }
