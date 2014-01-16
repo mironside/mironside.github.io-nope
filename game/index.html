@@ -12,7 +12,7 @@
         console.log(data);
         log = "";
         for(var i = 0; i < data.length; i++) {
-            log += '<div style="font-weight: bold">' + new Date(data[0].commit.author.date) + "</div><br><div>" + data[0].commit.message + "</div><br/><br/>";
+            log += '<div style="font-weight: bold">' + new Date(data[i].commit.author.date) + "</div><br><div>" + data[i].commit.message + "</div><br/><br/>";
         }
         $('#log').replaceWith(log)
       });
