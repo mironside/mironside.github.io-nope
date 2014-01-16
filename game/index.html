@@ -13,8 +13,10 @@
         console.log(data);
         log = "";
         for(var i = 0; i < data.length; i++) {
+            var date = new Date(data[i].commit.author.date);
+            var date = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+(date.getDate()) + ' ' + date.toLocaleTimeString();
             log += '<div class="panel panel-info">\n' +
-                  '  <div class="panel-heading"><h3 class="panel-title"><strong>' + new Date(data[i].commit.author.date) + '</strong></h3></div>\n' +
+                  '  <div class="panel-heading"><h3 class="panel-title"><strong>' + date + '</strong></h3></div>\n' +
                   '  <div class="panel-body">\n' +
                   data[i].commit.message + '\n' +
                   '  </div>\n' +
