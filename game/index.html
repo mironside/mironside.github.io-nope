@@ -1,18 +1,33 @@
-<!DOCTYPE html>
+<!DOCTYPE html><html><head><script src="packages/shadow_dom/shadow_dom.debug.js"></script>
+<script src="packages/custom_element/custom-elements.debug.js"></script>
+<script src="packages/browser/interop.js"></script>
 
-<html>
-  <head>
     <meta charset="utf-8">
     <title>Game</title>
     <link rel="stylesheet" href="game.css">
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script>
+     $.getJSON('https://api.github.com/repos/mironside/mironside.github.io/commits?path=game', function(data) {
+        console.log(data);
+        log = "";
+        for(var i = 0; i < data.length; i++) {
+            log += '<div style="font-weight: bold">' + new Date(data[0].commit.author.date) + "</div><br><div>" + data[0].commit.message + "</div><br/><br/>";
+        }
+        $('#log').replaceWith(log)
+      });
+    </script>
   </head>
   <body>
     <h1>Game</h1>
     
     <canvas id="glcanvas" width="640" height="360"></canvas>
 
-    <!--<script type="application/dart" src="game.dart"></script>-->
-    <script type="application/javascript" src="game.dart.js"></script>
-    <script src="dart.js"></script>
-  </body>
-</html>
+    <script src="index.html_bootstrap.dart.js"></script>
+    
+    <br>
+    <div id="log"></div>
+    <br>
+  
+
+</body></html>
