@@ -584,7 +584,7 @@ J.wY($.Wy,34962,$.HX)
 z=-a
 y=1.62*a
 x=$.Wy
-y=new Float32Array([a,z,0,a,z,y,z,z,0,z,z,y])
+y=new Float32Array([a,z,0,0,a,z,y,1,z,z,0,0,z,z,y,1])
 y.$dartCachedLength=y.length
 J.Fe(x,34962,y,35044)},Xg:function(a){var z,y,x
 $.zj=J.Rw($.Wy)
@@ -592,7 +592,7 @@ J.wY($.Wy,34962,$.zj)
 z=-a
 y=1.62*a
 x=$.Wy
-y=new Float32Array([a,z,0,a,z,y,a,a,0,a,a,y])
+y=new Float32Array([a,z,0,0,a,z,y,1,a,a,0,0,a,a,y,1])
 y.$dartCachedLength=y.length
 J.Fe(x,34962,y,35044)},ks:function(a){var z,y
 $.ko=J.Rw($.Wy)
@@ -612,11 +612,11 @@ D.Pt(32)
 D.Xg(32)
 D.ks(32)
 y=J.lA($.Wy,35633)
-J.Rb($.Wy,y,"    attribute vec3 aVertexPosition;\n\n    uniform mat4 uMVMatrix;\n    uniform mat4 uPMatrix;\n\n    void main(void) {\n      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n    }\n  ")
+J.Rb($.Wy,y,"    attribute vec4 aVertexPosition;\n\n    uniform mat4 uMVMatrix;\n    uniform mat4 uPMatrix;\n    varying float ambientOcclusion;\n\n    void main(void) {\n      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition.xyz, 1.0);\n      ambientOcclusion = aVertexPosition.w;\n    }\n  ")
 J.Ef($.Wy,y)
 if(J.cN($.Wy,y,35713)!==!0){window.alert(J.zO($.Wy,y))
 return}x=J.lA($.Wy,35632)
-J.Rb($.Wy,x,"    precision mediump float;\n    uniform vec4 color;\n\n    void main(void) {\n      gl_FragColor = color;\n    }\n  ")
+J.Rb($.Wy,x,"    precision highp float;\n    uniform vec4 color;\n    varying float ambientOcclusion;\n\n    void main(void) {\n      gl_FragColor = color * vec4((vec3(clamp(1.0-pow(1.0-ambientOcclusion, 2.5)+0.25, 0.0, 1.0))), 1.0);\n    }\n  ")
 J.Ef($.Wy,x)
 if(J.cN($.Wy,x,35713)!==!0){window.alert(J.zO($.Wy,x))
 return}w=J.WG($.Wy)
@@ -685,11 +685,8 @@ l=new Float32Array(p)
 l.$dartCachedLength=l.length
 J.pL(j,u,!1,l)
 J.wY($.Wy,34962,$.HX)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,5,0,4)
-J.wY($.Wy,34962,$.ko)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,1,0,2)}l=n+1
+J.GB($.Wy,$.PS,4,5126,!1,0,0)
+J.iw($.Wy,5,0,4)}l=n+1
 if(l<$.Lv()[o].length){k=$.Lv()[o]
 if(l<0||l>=k.length)throw H.e(k,l)
 k=J.xC(k[l],0)}else k=!0
@@ -719,7 +716,7 @@ k=new Float32Array(p)
 k.$dartCachedLength=k.length
 J.pL(i,u,!1,k)
 J.wY($.Wy,34962,$.zj)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
+J.GB($.Wy,$.PS,4,5126,!1,0,0)
 J.iw($.Wy,5,0,4)}k=$.Wy
 j=$.It()
 i=$.Lv()[o]
@@ -777,10 +774,7 @@ J.vt(k,t,i)
 i=$.Wy
 k=new Float32Array(p)
 k.$dartCachedLength=k.length
-J.pL(i,u,!1,k)
-J.wY($.Wy,34962,$.ko)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,1,0,2)}if(l<$.Lv()[o].length){k=$.Lv()[o]
+J.pL(i,u,!1,k)}if(l<$.Lv()[o].length){k=$.Lv()[o]
 if(l<0||l>=k.length)throw H.e(k,l)
 k=J.xC(k[l],0)}else k=!0
 if(k){k=$.Wy
@@ -807,10 +801,7 @@ J.vt(k,t,i)
 i=$.Wy
 k=new Float32Array(p)
 k.$dartCachedLength=k.length
-J.pL(i,u,!1,k)
-J.wY($.Wy,34962,$.ko)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,1,4,2)}if(m){m=$.Lv()
+J.pL(i,u,!1,k)}if(m){m=$.Lv()
 if(r<0||r>=8)throw H.e(m,r)
 m=m[r]
 if(n>=m.length)throw H.e(m,n)
@@ -871,10 +862,7 @@ J.vt(r,t,m)
 m=$.Wy
 r=new Float32Array(p)
 r.$dartCachedLength=r.length
-J.pL(m,u,!1,r)
-J.wY($.Wy,34962,$.ko)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,1,2,2)}}if(typeof 1!=="number")throw H.s(1);++n}if(typeof 1!=="number")throw H.s(1);++o}}},1],])
+J.pL(m,u,!1,r)}}if(typeof 1!=="number")throw H.s(1);++n}if(typeof 1!=="number")throw H.s(1);++o}}},1],])
 I.$finishClasses($$,$,null)
 $$=null
 init.globalFunctions.Eu=H.Eu=new H.yh(H.Ju,"Eu")
