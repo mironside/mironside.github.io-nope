@@ -3276,7 +3276,7 @@ J.wY($.Wy,34962,$.HX)
 z=-a
 y=1.62*a
 x=$.Wy
-y=new Float32Array([a,z,0,a,z,y,z,z,0,z,z,y])
+y=new Float32Array([a,z,0,0,a,z,y,1,z,z,0,0,z,z,y,1])
 y.$dartCachedLength=y.length
 J.Fe(x,34962,y,35044)},Xg:function(a){var z,y,x
 $.zj=J.Rw($.Wy)
@@ -3284,7 +3284,7 @@ J.wY($.Wy,34962,$.zj)
 z=-a
 y=1.62*a
 x=$.Wy
-y=new Float32Array([a,z,0,a,z,y,a,a,0,a,a,y])
+y=new Float32Array([a,z,0,0,a,z,y,1,a,a,0,0,a,a,y,1])
 y.$dartCachedLength=y.length
 J.Fe(x,34962,y,35044)},ks:function(a){var z,y
 $.ko=J.Rw($.Wy)
@@ -3305,11 +3305,11 @@ D.Pt(32)
 D.Xg(32)
 D.ks(32)
 x=J.lA($.Wy,35633)
-J.Rb($.Wy,x,"    attribute vec3 aVertexPosition;\n\n    uniform mat4 uMVMatrix;\n    uniform mat4 uPMatrix;\n\n    void main(void) {\n      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n    }\n  ")
+J.Rb($.Wy,x,"    attribute vec4 aVertexPosition;\n\n    uniform mat4 uMVMatrix;\n    uniform mat4 uPMatrix;\n    varying float ambientOcclusion;\n\n    void main(void) {\n      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition.xyz, 1.0);\n      ambientOcclusion = aVertexPosition.w;\n    }\n  ")
 J.Ef($.Wy,x)
 if(J.cN($.Wy,x,35713)!==!0){window.alert(J.zO($.Wy,x))
 return}w=J.lA($.Wy,35632)
-J.Rb($.Wy,w,"    precision mediump float;\n    uniform vec4 color;\n\n    void main(void) {\n      gl_FragColor = color;\n    }\n  ")
+J.Rb($.Wy,w,"    precision highp float;\n    uniform vec4 color;\n    varying float ambientOcclusion;\n\n    void main(void) {\n      gl_FragColor = color * vec4((vec3(clamp(1.0-pow(1.0-ambientOcclusion, 2.5)+0.25, 0.0, 1.0))), 1.0);\n    }\n  ")
 J.Ef($.Wy,w)
 if(J.cN($.Wy,w,35713)!==!0){window.alert(J.zO($.Wy,w))
 return}v=J.WG($.Wy)
@@ -3364,11 +3364,8 @@ l=new Float32Array(p)
 l.$dartCachedLength=l.length
 J.pL(j,t,!1,l)
 J.wY($.Wy,34962,$.HX)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,5,0,4)
-J.wY($.Wy,34962,$.ko)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,1,0,2)}l=n+1
+J.GB($.Wy,$.PS,4,5126,!1,0,0)
+J.iw($.Wy,5,0,4)}l=n+1
 k=J.q8($.Lv()[o])
 if(typeof k!=="number")throw H.s(k)
 if(l>=k||J.xC(J.UQ($.Lv()[o],l),0)){k=$.Wy
@@ -3391,7 +3388,7 @@ k=new Float32Array(p)
 k.$dartCachedLength=k.length
 J.pL(i,t,!1,k)
 J.wY($.Wy,34962,$.zj)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
+J.GB($.Wy,$.PS,4,5126,!1,0,0)
 J.iw($.Wy,5,0,4)}k=$.Wy
 j=$.It()
 i=J.UQ($.Lv()[o],n)
@@ -3435,10 +3432,7 @@ J.vt(k,s,i)
 i=$.Wy
 k=new Float32Array(p)
 k.$dartCachedLength=k.length
-J.pL(i,t,!1,k)
-J.wY($.Wy,34962,$.ko)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,1,0,2)}k=J.q8($.Lv()[o])
+J.pL(i,t,!1,k)}k=J.q8($.Lv()[o])
 if(typeof k!=="number")throw H.s(k)
 if(l>=k||J.xC(J.UQ($.Lv()[o],l),0)){k=$.Wy
 j=$.It()
@@ -3458,10 +3452,7 @@ J.vt(k,s,i)
 i=$.Wy
 k=new Float32Array(p)
 k.$dartCachedLength=k.length
-J.pL(i,t,!1,k)
-J.wY($.Wy,34962,$.ko)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,1,4,2)}if(m){m=$.Lv()
+J.pL(i,t,!1,k)}if(m){m=$.Lv()
 if(q<0||q>=8)throw H.e(m,q)
 m=J.xC(J.UQ(m[q],n),0)}else m=!0
 if(m){m=J.q8($.Lv()[o])
@@ -3505,10 +3496,7 @@ J.vt(q,s,m)
 m=$.Wy
 q=new Float32Array(p)
 q.$dartCachedLength=q.length
-J.pL(m,t,!1,q)
-J.wY($.Wy,34962,$.ko)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,1,2,2)}}if(typeof 1!=="number")throw H.s(1);++n}if(typeof 1!=="number")throw H.s(1);++o}}}],["metadata","file:///c:/Users/colsen/Desktop/dart/dart-sdk/lib/html/html_common/metadata.dart",,B,{fA:{"":"a;d9,Ln",static:{"":"n4,OB,pj,PZ,Dp",}},tz:{"":"a;"},jR:{"":"a;oc"},FL:{"":"a;"},c5:{"":"a;"}}],["observe.src.change_notifier","package:observe/src/change_notifier.dart",,O,{RB:{"":"a;"}}],["observe.src.change_record","package:observe/src/change_record.dart",,T,{yj:{"":"a;"}}],["observe.src.list_diff","package:observe/src/list_diff.dart",,G,{DA:{"":"a;"}}],["observe.src.metadata","package:observe/src/metadata.dart",,K,{vl:{"":"a;"}}],["polymer","package:polymer/polymer.dart",,A,{GA:function(a,b,c,d){var z,y,x,w,v,u
+J.pL(m,t,!1,q)}}if(typeof 1!=="number")throw H.s(1);++n}if(typeof 1!=="number")throw H.s(1);++o}}}],["metadata","file:///c:/Users/colsen/Desktop/dart/dart-sdk/lib/html/html_common/metadata.dart",,B,{fA:{"":"a;d9,Ln",static:{"":"n4,OB,pj,PZ,Dp",}},tz:{"":"a;"},jR:{"":"a;oc"},FL:{"":"a;"},c5:{"":"a;"}}],["observe.src.change_notifier","package:observe/src/change_notifier.dart",,O,{RB:{"":"a;"}}],["observe.src.change_record","package:observe/src/change_record.dart",,T,{yj:{"":"a;"}}],["observe.src.list_diff","package:observe/src/list_diff.dart",,G,{DA:{"":"a;"}}],["observe.src.metadata","package:observe/src/metadata.dart",,K,{vl:{"":"a;"}}],["polymer","package:polymer/polymer.dart",,A,{GA:function(a,b,c,d){var z,y,x,w,v,u
 if(c==null)c=P.Ls(null,null,null,W.QF)
 if(d==null){d=[]
 d.$builtinTypeInfo=[J.O]}if(a==null){z="warning: "+H.d(b)+" not found."
