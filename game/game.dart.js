@@ -234,7 +234,7 @@ if(v!=null)w=!1
 u=H.Ko(v,c)
 u=typeof u==="string"?u:H.d(u)
 z.vM=z.vM+u}return w?"":"<"+H.d(z)+">"},or:function(a){var z=$.NF
-return"Instance of "+(z==null?"<Unknown>":z.call$1(a))},wz:function(a){return H.eQ(a)},bm:function(a,b,c){Object.defineProperty(a, b, {value: c, enumerable: false, writable: true, configurable: true})},w3:function(a){var z,y,x,w,v,u
+return"Instance of "+(z==null?"<Unknown>":z.call$1(a))},wz:function(a){return H.eQ(a)},iw:function(a,b,c){Object.defineProperty(a, b, {value: c, enumerable: false, writable: true, configurable: true})},w3:function(a){var z,y,x,w,v,u
 z=$.NF.call$1(a)
 y=$.nw[z]
 if(y!=null){Object.defineProperty(a, init.dispatchPropertyName, {value: y, enumerable: false, writable: true, configurable: true})
@@ -284,7 +284,7 @@ z["~"+w]=t
 z["-"+w]=t
 z["+"+w]=t
 z["*"+w]=t}}},kO:function(){var z,y,x,w,v,u,t
-z=C.tZ()
+z=C.HX()
 z=H.ud(C.Mc,H.ud(C.XQ,H.ud(C.XQ,H.ud(C.Px,H.ud(C.dE,H.ud(C.dK(C.Mo),z))))))
 if(typeof dartNativeDispatchHooksTransformer!="undefined"){y=dartNativeDispatchHooksTransformer
 if(typeof y=="function")y=[y]
@@ -538,7 +538,7 @@ jV:function(a,b){return a.compileShader(b)},
 Gp:function(a){return a.createBuffer()},
 pC:function(a){return a.createProgram()},
 WV:function(a,b){return a.createShader(b)},
-rZ:function(a,b,c,d){return a.drawArrays(b,c,d)},
+rn:function(a,b,c,d,e){return a.drawElements(b,c,d,e)},
 Qc:function(a,b){return a.enable(b)},
 CF:function(a,b){return a.enableVertexAttribArray(b)},
 ci:function(a,b,c){return a.getAttribLocation(b,c)},
@@ -556,13 +556,19 @@ fw:function(a,b,c,d,e){return a.viewport(b,c,d,e)},
 "%":"WebGLRenderingContext"}}],["dart.typed_data","dart:typed_data",,P,{AS:{"":"Gv;",
 aq:function(a,b,c){if(b<0||b>=c)throw H.b(P.TE(b,0,c))
 else throw H.b(P.u("Invalid list index "+b))},
-"%":";ArrayBufferView;xG|Vj"},oI:{"":"Vj;",
+"%":";ArrayBufferView;xG|Vj|VW|RK"},oI:{"":"Vj;",
 gB:function(a){return C.i7(a)},
 t:function(a,b){var z=C.i7(a)
 if(b>>>0!=b||b>=z)this.aq(a,b,z)
 return a[b]},
 $isXj:true,
-"%":"Float32Array"},xG:{"":"AS+lD;"},Vj:{"":"xG+SU;"}}],["","file:///C:/Users/colsen/dart/game/web/game.dart",,D,{wT:function(a,b,c,d){var z,y
+"%":"Float32Array"},rF:{"":"RK;",
+gB:function(a){return C.i7(a)},
+t:function(a,b){var z=C.i7(a)
+if(b>>>0!=b||b>=z)this.aq(a,b,z)
+return a[b]},
+$isXj:true,
+"%":"Int16Array"},xG:{"":"AS+lD;"},Vj:{"":"xG+SU;"},VW:{"":"AS+lD;"},RK:{"":"VW+SU;"}}],["","file:///C:/Users/colsen/dart/game/web/game.dart",,D,{wT:function(a,b,c,d){var z,y
 z=1/Math.tan(0.5*a*3.141592653589793/180)
 y=1/(c-d)
 return[z/b,0,0,0,0,z,0,0,0,0,(c+d)*y,-1,0,0,c*d*y*2,0]},nA:function(a,b){var z,y,x,w,v
@@ -578,9 +584,41 @@ z=-a
 y=$.Wy
 z=new Float32Array([z,z,0,z,a,0,a,z,0,a,a,0])
 z.$dartCachedLength=z.length
-J.Fe(y,34962,z,35044)},Pt:function(a){var z,y,x
-$.HX=J.Rw($.Wy)
-J.wY($.Wy,34962,$.HX)
+J.Fe(y,34962,z,35044)},pB:function(a){var z,y,x
+$.Lp=J.Rw($.Wy)
+J.wY($.Wy,34962,$.Lp)
+z=-a
+y=1.62*a
+x=$.Wy
+z=new Float32Array([z,z,y,1,a,z,y,1,a,a,y,1,z,z,0,0.25,a,z,0,0.1,a,a,0,0.25,z,z,0,1,a,z,0,0.25,a,a,0,1,a,z,0,1,z,a,0,1])
+z.$dartCachedLength=z.length
+J.Fe(x,34962,z,35044)
+$.ah=J.Rw($.Wy)
+J.wY($.Wy,34963,$.ah)
+z=$.Wy
+x=new Int16Array([0,1,4,0,4,3,1,2,4,4,2,5,3,4,10,10,4,5])
+x.$dartCachedLength=x.length
+J.Fe(z,34963,x,35044)
+$.uC=J.Rw($.Wy)
+J.wY($.Wy,34963,$.uC)
+x=$.Wy
+z=new Int16Array([0,1,3,3,1,7,3,7,8,3,8,10])
+z.$dartCachedLength=z.length
+J.Fe(x,34963,z,35044)
+$.PE=J.Rw($.Wy)
+J.wY($.Wy,34963,$.PE)
+z=$.Wy
+x=new Int16Array([1,2,5,1,5,7,6,7,5,6,5,10])
+x.$dartCachedLength=x.length
+J.Fe(z,34963,x,35044)
+$.NU=J.Rw($.Wy)
+J.wY($.Wy,34963,$.NU)
+x=$.Wy
+z=new Int16Array([6,9,8,6,8,10])
+z.$dartCachedLength=z.length
+J.Fe(x,34963,z,35044)},Pt:function(a){var z,y,x
+$.BQ=J.Rw($.Wy)
+J.wY($.Wy,34962,$.BQ)
 z=-a
 y=1.62*a
 x=$.Wy
@@ -601,7 +639,19 @@ z=-a
 y=$.Wy
 z=new Float32Array([z,z,0,a,z,0,a,z,0,a,z,-1.62*a,a,z,0,a,a,0])
 z.$dartCachedLength=z.length
-J.Fe(y,34962,z,35044)},E2:function(){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f
+J.Fe(y,34962,z,35044)},ze:function(){J.wY($.Wy,34962,$.Lp)
+J.wY($.Wy,34963,$.NU)
+J.GB($.Wy,$.PS,4,5126,!1,0,0)
+J.Hb($.Wy,4,6,5123,0)},pY:function(){J.wY($.Wy,34962,$.Lp)
+J.wY($.Wy,34963,$.ah)
+J.GB($.Wy,$.PS,4,5126,!1,0,0)
+J.Hb($.Wy,4,18,5123,0)},cJ:function(){J.wY($.Wy,34962,$.Lp)
+J.wY($.Wy,34963,$.uC)
+J.GB($.Wy,$.PS,4,5126,!1,0,0)
+J.Hb($.Wy,4,12,5123,0)},mz:function(){J.wY($.Wy,34962,$.Lp)
+J.wY($.Wy,34963,$.PE)
+J.GB($.Wy,$.PS,4,5126,!1,0,0)
+J.Hb($.Wy,4,12,5123,0)},E2:function(){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e
 window.navigator.webkitGetGamepads()
 z=document.querySelector("#glcanvas")
 $.Wy=J.PB(z,"experimental-webgl")
@@ -611,12 +661,13 @@ D.nd(32)
 D.Pt(32)
 D.Xg(32)
 D.ks(32)
+D.pB(32)
 y=J.lA($.Wy,35633)
 J.Rb($.Wy,y,"    attribute vec4 aVertexPosition;\n\n    uniform mat4 uMVMatrix;\n    uniform mat4 uPMatrix;\n    varying float ambientOcclusion;\n\n    void main(void) {\n      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition.xyz, 1.0);\n      ambientOcclusion = aVertexPosition.w;\n    }\n  ")
 J.Ef($.Wy,y)
 if(J.cN($.Wy,y,35713)!==!0){window.alert(J.zO($.Wy,y))
 return}x=J.lA($.Wy,35632)
-J.Rb($.Wy,x,"    precision highp float;\n    uniform vec4 color;\n    varying float ambientOcclusion;\n\n    void main(void) {\n      gl_FragColor = color * vec4((vec3(clamp(1.0-pow(1.0-ambientOcclusion, 2.5)+0.25, 0.0, 1.0))), 1.0);\n    }\n  ")
+J.Rb($.Wy,x,"    precision highp float;\n    uniform vec4 color;\n    varying float ambientOcclusion;\n\n    void main(void) {\n      gl_FragColor = color * vec4((vec3(clamp(1.0-pow(1.0-ambientOcclusion, 1.5)+0.05, 0.0, 1.0))), 1.0);\n    }\n  ")
 J.Ef($.Wy,x)
 if(J.cN($.Wy,x,35713)!==!0){window.alert(J.zO($.Wy,x))
 return}w=J.WG($.Wy)
@@ -641,228 +692,119 @@ r=$.Wy
 s=new Float32Array(q)
 s.$dartCachedLength=s.length
 J.pL(r,v,!1,s)
-p=null
-o=0
-while(o<2){s=o*64
-n=0
-while(n<2){c$1:{r=$.Lv()
-if(o<0)throw H.e(r,o)
-r=r[o]
-if(n<0||n>=r.length)throw H.e(r,n)
-if(J.xC(r[n],0))break c$1
-p=D.nA(n*64,s)
-if(typeof 1!=="number")throw H.s(1)
-r=o-1
-m=r>=0
-if(m){l=$.Lv()
-if(r<0||r>=8)throw H.e(l,r)
-l=l[r]
-if(n>=l.length)throw H.e(l,n)
-l=J.xC(l[n],0)}else l=!0
-if(l){l=$.Wy
-k=$.It()
-j=$.Lv()[o]
-if(n>=j.length)throw H.e(j,n)
-j=j[n]
-if(j>>>0!==j||j>=5)throw H.e(k,j)
-j=k[j]
-k=j.length
-if(0>=k)throw H.e(j,0)
-i=j[0]
-if(typeof i!=="number")throw H.s(i)
-if(1<0||1>=k)throw H.e(j,1)
-h=j[1]
-if(typeof h!=="number")throw H.s(h)
-if(2>=k)throw H.e(j,2)
-g=j[2]
+for(p=null,o=0;o<2;++o)for(s=o-1,r=s>=0,n=o*64,m=0;m<2;++m){l=$.Lv()[o]
+if(m>=l.length)throw H.e(l,m)
+if(J.xC(l[m],0))continue
+p=D.nA(m*64,n)
+if(r){l=$.Lv()
+if(s<0)throw H.e(l,s)
+l=l[s]
+if(m>=l.length)throw H.e(l,m)
+k=J.xC(l[m],0)}else k=!0
+l=m+1
+if(l<$.Lv()[o].length){j=$.Lv()[o]
+if(l>=j.length)throw H.e(j,l)
+i=J.xC(j[l],0)}else i=!0
+if(k&&i){l=$.Wy
+j=$.It()
+h=$.Lv()[o]
+if(m>=h.length)throw H.e(h,m)
+h=h[m]
+if(h>>>0!==h||h>=5)throw H.e(j,h)
+h=j[h]
+j=h.length
+if(0>=j)throw H.e(h,0)
+g=h[0]
 if(typeof g!=="number")throw H.s(g)
-if(3>=k)throw H.e(j,3)
-j=new Float32Array([0.8*i,0.8*h,0.8*g,j[3]])
-j.$dartCachedLength=j.length
-J.vt(l,t,j)
-j=$.Wy
+if(1>=j)throw H.e(h,1)
+f=h[1]
+if(typeof f!=="number")throw H.s(f)
+if(2>=j)throw H.e(h,2)
+e=h[2]
+if(typeof e!=="number")throw H.s(e)
+if(3>=j)throw H.e(h,3)
+h=new Float32Array([0.8*g,0.8*f,0.8*e,h[3]])
+h.$dartCachedLength=h.length
+J.vt(l,t,h)
+h=$.Wy
 l=new Float32Array(p)
 l.$dartCachedLength=l.length
-J.pL(j,u,!1,l)
-J.wY($.Wy,34962,$.HX)
-J.GB($.Wy,$.PS,4,5126,!1,0,0)
-J.iw($.Wy,5,0,4)}l=n+1
-if(l<$.Lv()[o].length){k=$.Lv()[o]
-if(l<0||l>=k.length)throw H.e(k,l)
-k=J.xC(k[l],0)}else k=!0
-if(k){k=$.Wy
+J.pL(h,u,!1,l)
+D.pY()}else if(k){l=$.Wy
 j=$.It()
-i=$.Lv()[o]
-if(n>=i.length)throw H.e(i,n)
-i=i[n]
-if(i>>>0!==i||i>=5)throw H.e(j,i)
-i=j[i]
-j=i.length
-if(0>=j)throw H.e(i,0)
-h=i[0]
-if(typeof h!=="number")throw H.s(h)
-if(1<0||1>=j)throw H.e(i,1)
-g=i[1]
+h=$.Lv()[o]
+if(m>=h.length)throw H.e(h,m)
+h=h[m]
+if(h>>>0!==h||h>=5)throw H.e(j,h)
+h=j[h]
+j=h.length
+if(0>=j)throw H.e(h,0)
+g=h[0]
 if(typeof g!=="number")throw H.s(g)
-if(2>=j)throw H.e(i,2)
-f=i[2]
+if(1>=j)throw H.e(h,1)
+f=h[1]
 if(typeof f!=="number")throw H.s(f)
-if(3>=j)throw H.e(i,3)
-i=new Float32Array([0.65*h,0.65*g,0.65*f,i[3]])
-i.$dartCachedLength=i.length
-J.vt(k,t,i)
-i=$.Wy
-k=new Float32Array(p)
-k.$dartCachedLength=k.length
-J.pL(i,u,!1,k)
-J.wY($.Wy,34962,$.zj)
-J.GB($.Wy,$.PS,4,5126,!1,0,0)
-J.iw($.Wy,5,0,4)}k=$.Wy
-j=$.It()
-i=$.Lv()[o]
-if(n>=i.length)throw H.e(i,n)
-i=i[n]
-if(i>>>0!==i||i>=5)throw H.e(j,i)
-i=j[i]
-j=i.length
-if(0>=j)throw H.e(i,0)
-h=i[0]
-if(typeof h!=="number")throw H.s(h)
-if(1<0||1>=j)throw H.e(i,1)
-g=i[1]
+if(2>=j)throw H.e(h,2)
+e=h[2]
+if(typeof e!=="number")throw H.s(e)
+if(3>=j)throw H.e(h,3)
+h=new Float32Array([0.8*g,0.8*f,0.8*e,h[3]])
+h.$dartCachedLength=h.length
+J.vt(l,t,h)
+h=$.Wy
+l=new Float32Array(p)
+l.$dartCachedLength=l.length
+J.pL(h,u,!1,l)
+D.cJ()}else{l=$.Wy
+if(i){j=$.It()
+h=$.Lv()[o]
+if(m>=h.length)throw H.e(h,m)
+h=h[m]
+if(h>>>0!==h||h>=5)throw H.e(j,h)
+h=j[h]
+j=h.length
+if(0>=j)throw H.e(h,0)
+g=h[0]
 if(typeof g!=="number")throw H.s(g)
-if(2>=j)throw H.e(i,2)
-f=i[2]
+if(1>=j)throw H.e(h,1)
+f=h[1]
 if(typeof f!=="number")throw H.s(f)
-if(3>=j)throw H.e(i,3)
-i=new Float32Array([1*h,1*g,1*f,i[3]])
-i.$dartCachedLength=i.length
-J.vt(k,t,i)
-i=$.Wy
-k=new Float32Array(p)
-k.$dartCachedLength=k.length
-J.pL(i,u,!1,k)
-J.wY($.Wy,34962,$.cy)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,5,0,4)
-if(m){k=$.Lv()
-if(r<0||r>=8)throw H.e(k,r)
-k=k[r]
-if(n>=k.length)throw H.e(k,n)
-k=J.xC(k[n],0)}else k=!0
-if(k){k=$.Wy
-j=$.It()
-i=$.Lv()[o]
-if(n>=i.length)throw H.e(i,n)
-i=i[n]
-if(i>>>0!==i||i>=5)throw H.e(j,i)
-i=j[i]
-j=i.length
-if(0>=j)throw H.e(i,0)
-h=i[0]
-if(typeof h!=="number")throw H.s(h)
-if(1>=j)throw H.e(i,1)
-g=i[1]
+if(2>=j)throw H.e(h,2)
+e=h[2]
+if(typeof e!=="number")throw H.s(e)
+if(3>=j)throw H.e(h,3)
+h=new Float32Array([0.65*g,0.65*f,0.65*e,h[3]])
+h.$dartCachedLength=h.length
+J.vt(l,t,h)
+h=$.Wy
+l=new Float32Array(p)
+l.$dartCachedLength=l.length
+J.pL(h,u,!1,l)
+D.mz()}else{j=$.It()
+h=$.Lv()[o]
+if(m>=h.length)throw H.e(h,m)
+h=h[m]
+if(h>>>0!==h||h>=5)throw H.e(j,h)
+h=j[h]
+j=h.length
+if(0>=j)throw H.e(h,0)
+g=h[0]
 if(typeof g!=="number")throw H.s(g)
-if(2>=j)throw H.e(i,2)
-f=i[2]
+if(1>=j)throw H.e(h,1)
+f=h[1]
 if(typeof f!=="number")throw H.s(f)
-if(3>=j)throw H.e(i,3)
-i=new Float32Array([0*h,0*g,0*f,i[3]])
-i.$dartCachedLength=i.length
-J.vt(k,t,i)
-i=$.Wy
-k=new Float32Array(p)
-k.$dartCachedLength=k.length
-J.pL(i,u,!1,k)}if(l<$.Lv()[o].length){k=$.Lv()[o]
-if(l<0||l>=k.length)throw H.e(k,l)
-k=J.xC(k[l],0)}else k=!0
-if(k){k=$.Wy
-j=$.It()
-i=$.Lv()[o]
-if(n>=i.length)throw H.e(i,n)
-i=i[n]
-if(i>>>0!==i||i>=5)throw H.e(j,i)
-i=j[i]
-j=i.length
-if(0>=j)throw H.e(i,0)
-h=i[0]
-if(typeof h!=="number")throw H.s(h)
-if(1>=j)throw H.e(i,1)
-g=i[1]
-if(typeof g!=="number")throw H.s(g)
-if(2>=j)throw H.e(i,2)
-f=i[2]
-if(typeof f!=="number")throw H.s(f)
-if(3>=j)throw H.e(i,3)
-i=new Float32Array([0*h,0*g,0*f,i[3]])
-i.$dartCachedLength=i.length
-J.vt(k,t,i)
-i=$.Wy
-k=new Float32Array(p)
-k.$dartCachedLength=k.length
-J.pL(i,u,!1,k)}if(m){m=$.Lv()
-if(r<0||r>=8)throw H.e(m,r)
-m=m[r]
-if(n>=m.length)throw H.e(m,n)
-m=J.xC(m[n],0)}else m=!0
-if(m)if(l<$.Lv()[o].length){m=$.Lv()[o]
-if(l<0||l>=m.length)throw H.e(m,l)
-m=J.xC(m[l],0)}else m=!0
-else m=!1
-if(m){m=$.Wy
-k=$.It()[4]
-j=k.length
-if(0>=j)throw H.e(k,0)
-i=k[0]
-if(typeof i!=="number")throw H.s(i)
-if(1>=j)throw H.e(k,1)
-h=k[1]
-if(typeof h!=="number")throw H.s(h)
-if(2>=j)throw H.e(k,2)
-g=k[2]
-if(typeof g!=="number")throw H.s(g)
-if(3>=j)throw H.e(k,3)
-k=new Float32Array([0*i,0*h,0*g,k[3]])
-k.$dartCachedLength=k.length
-J.vt(m,t,k)
-k=$.Wy
-m=new Float32Array(p)
-m.$dartCachedLength=m.length
-J.pL(k,u,!1,m)
-J.wY($.Wy,34962,$.ko)
-J.GB($.Wy,$.PS,3,5126,!1,0,0)
-J.iw($.Wy,1,2,2)}if(r>=0)if(l<$.Lv()[o].length){m=$.Lv()
-if(r>=8)throw H.e(m,r)
-m=m[r]
-if(l<0||l>=m.length)throw H.e(m,l)
-if(J.xC(m[l],0)){r=$.Lv()[r]
-if(n>=r.length)throw H.e(r,n)
-if(!J.xC(r[n],0)){r=$.Lv()[o]
-if(l>=r.length)throw H.e(r,l)
-l=!J.xC(r[l],0)
-r=l}else r=!1}else r=!1}else r=!1
-else r=!1
-if(r){r=$.Wy
-m=$.It()[4]
-l=m.length
-if(0>=l)throw H.e(m,0)
-k=m[0]
-if(typeof k!=="number")throw H.s(k)
-if(1>=l)throw H.e(m,1)
-j=m[1]
-if(typeof j!=="number")throw H.s(j)
-if(2>=l)throw H.e(m,2)
-i=m[2]
-if(typeof i!=="number")throw H.s(i)
-if(3>=l)throw H.e(m,3)
-m=new Float32Array([0*k,0*j,0*i,m[3]])
-m.$dartCachedLength=m.length
-J.vt(r,t,m)
-m=$.Wy
-r=new Float32Array(p)
-r.$dartCachedLength=r.length
-J.pL(m,u,!1,r)}}if(typeof 1!=="number")throw H.s(1);++n}if(typeof 1!=="number")throw H.s(1);++o}}},1],])
+if(2>=j)throw H.e(h,2)
+e=h[2]
+if(typeof e!=="number")throw H.s(e)
+if(3>=j)throw H.e(h,3)
+h=new Float32Array([1*g,1*f,1*e,h[3]])
+h.$dartCachedLength=h.length
+J.vt(l,t,h)
+h=$.Wy
+l=new Float32Array(p)
+l.$dartCachedLength=l.length
+J.pL(h,u,!1,l)
+D.ze()}}}}},1],])
 I.$finishClasses($$,$,null)
 $$=null
 init.globalFunctions.Eu=H.Eu=new H.yh(H.Ju,"Eu")
@@ -946,7 +888,7 @@ C.dK=function(getTagFallback) {
 }
 C.XQ=function(hooks) { return hooks; }
 
-C.tZ=function() {
+C.HX=function() {
   function typeNameInChrome(obj) { return obj.constructor.name; }
   function getUnknownTag(object, tag) {
     if (/^HTML[A-Z].*Element$/.test(tag)) {
@@ -1024,7 +966,12 @@ $.Bv=null
 $.Wy=null
 $.PS=null
 $.cy=null
-$.HX=null
+$.Lp=null
+$.ah=null
+$.uC=null
+$.PE=null
+$.NU=null
+$.BQ=null
 $.zj=null
 $.ko=null
 J.AG=function(a){return J.x(a).bu(a)}
@@ -1033,6 +980,7 @@ J.Ef=function(a,b){return J.RE(a).jV(a,b)}
 J.Fe=function(a,b,c,d){return J.RE(a).Vl(a,b,c,d)}
 J.GB=function(a,b,c,d,e,f,g){return J.RE(a).l6(a,b,c,d,e,f,g)}
 J.GP=function(a){return J.w1(a).gA(a)}
+J.Hb=function(a,b,c,d,e){return J.RE(a).rn(a,b,c,d,e)}
 J.Iz=function(a,b){return J.w1(a).Sl(a,b)}
 J.N6=function(a,b,c,d,e){return J.RE(a).fw(a,b,c,d,e)}
 J.Np=function(a,b,c,d,e){return J.RE(a).kd(a,b,c,d,e)}
@@ -1048,7 +996,6 @@ J.a5=function(a,b,c){return J.RE(a).YE(a,b,c)}
 J.aS=function(a,b){return J.RE(a).Qc(a,b)}
 J.au=function(a,b){return J.RE(a).Ev(a,b)}
 J.cN=function(a,b,c){return J.RE(a).p6(a,b,c)}
-J.iw=function(a,b,c,d){return J.RE(a).rZ(a,b,c,d)}
 J.jO=function(a,b){return J.RE(a).nA(a,b)}
 J.lA=function(a,b){return J.RE(a).WV(a,b)}
 J.pL=function(a,b,c,d){return J.RE(a).d2(a,b,c,d)}
