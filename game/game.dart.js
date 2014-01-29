@@ -590,33 +590,33 @@ J.wY($.Wy,34962,$.Lp)
 z=-a
 y=1.62*a
 x=$.Wy
-z=new Float32Array([z,z,y,1,a,z,y,1,a,a,y,1,z,z,0,0.25,a,z,0,0.1,a,a,0,0.25,z,z,0,1,a,z,0,0.25,a,a,0,1,a,z,0,1,z,a,0,1])
-z.$dartCachedLength=z.length
-J.Fe(x,34962,z,35044)
+y=new Float32Array([z,z,y,1,a,z,y,1,a,a,y,1,z,z,0,0.25,a,z,0,0,a,a,0,0.25,z,z,0,1,a,z,0,0.25,a,a,0,1,a,z,0,1,z,a,0,1,a,z,y,0.25])
+y.$dartCachedLength=y.length
+J.Fe(x,34962,y,35044)
 $.ah=J.Rw($.Wy)
 J.wY($.Wy,34963,$.ah)
-z=$.Wy
-x=new Int16Array([0,1,4,0,4,3,1,2,4,4,2,5,3,4,10,10,4,5])
+y=$.Wy
+x=new Int16Array([0,11,4,0,4,3,11,2,4,4,2,5,3,4,10,10,4,5])
 x.$dartCachedLength=x.length
-J.Fe(z,34963,x,35044)
+J.Fe(y,34963,x,35044)
 $.uC=J.Rw($.Wy)
 J.wY($.Wy,34963,$.uC)
 x=$.Wy
-z=new Int16Array([0,1,3,3,1,7,3,7,8,3,8,10])
-z.$dartCachedLength=z.length
-J.Fe(x,34963,z,35044)
+y=new Int16Array([0,1,3,3,1,7,3,7,8,3,8,10])
+y.$dartCachedLength=y.length
+J.Fe(x,34963,y,35044)
 $.PE=J.Rw($.Wy)
 J.wY($.Wy,34963,$.PE)
-z=$.Wy
+y=$.Wy
 x=new Int16Array([1,2,5,1,5,7,6,7,5,6,5,10])
 x.$dartCachedLength=x.length
-J.Fe(z,34963,x,35044)
+J.Fe(y,34963,x,35044)
 $.NU=J.Rw($.Wy)
 J.wY($.Wy,34963,$.NU)
 x=$.Wy
-z=new Int16Array([6,9,8,6,8,10])
-z.$dartCachedLength=z.length
-J.Fe(x,34963,z,35044)},Pt:function(a){var z,y,x
+y=new Int16Array([6,9,8,6,8,10])
+y.$dartCachedLength=y.length
+J.Fe(x,34963,y,35044)},Pt:function(a){var z,y,x
 $.BQ=J.Rw($.Wy)
 J.wY($.Wy,34962,$.BQ)
 z=-a
@@ -663,11 +663,11 @@ D.Xg(32)
 D.ks(32)
 D.pB(32)
 y=J.lA($.Wy,35633)
-J.Rb($.Wy,y,"    attribute vec4 aVertexPosition;\n\n    uniform mat4 uMVMatrix;\n    uniform mat4 uPMatrix;\n    varying float ambientOcclusion;\n\n    void main(void) {\n      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition.xyz, 1.0);\n      ambientOcclusion = aVertexPosition.w;\n    }\n  ")
+J.Rb($.Wy,y,"    precision highp float;\n    attribute vec4 aVertexPosition;\n\n    uniform mat4 uMVMatrix;\n    uniform mat4 uPMatrix;\n    varying float ambientOcclusion;\n    varying vec3 pos;\n\n    void main(void) {\n      pos = aVertexPosition.xyz;\n      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition.xyz, 1.0);\n      ambientOcclusion = aVertexPosition.w;\n    }\n  ")
 J.Ef($.Wy,y)
 if(J.cN($.Wy,y,35713)!==!0){window.alert(J.zO($.Wy,y))
 return}x=J.lA($.Wy,35632)
-J.Rb($.Wy,x,"    precision highp float;\n    uniform vec4 color;\n    varying float ambientOcclusion;\n\n    void main(void) {\n      gl_FragColor = color * vec4((vec3(clamp(1.0-pow(1.0-ambientOcclusion, 1.5)+0.05, 0.0, 1.0))), 1.0);\n    }\n  ")
+J.Rb($.Wy,x,"    #define M_PI 3.1415926535897932384626433832795\n    precision highp float;\n    uniform vec4 color;\n    varying float ambientOcclusion;\n    varying vec3 pos;\n\n    void main(void) {\n      float t = (pos.y+32.0)/64.0;\n      float aoy = 0.5 * (1.0 + sin((pos.y+32.0)/64.0 * M_PI / 2.0));\n      float aox = 0.5 * (1.0 + sin((-pos.x+32.0)/64.0 * M_PI / 2.0));\n      // ao = ambientOcclusion;\n      gl_FragColor = color * vec4(vec3(aox*aoy), 1.0);\n    }\n  ")
 J.Ef($.Wy,x)
 if(J.cN($.Wy,x,35713)!==!0){window.alert(J.zO($.Wy,x))
 return}w=J.WG($.Wy)
