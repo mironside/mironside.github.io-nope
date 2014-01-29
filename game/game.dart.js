@@ -651,7 +651,7 @@ J.GB($.Wy,$.PS,4,5126,!1,0,0)
 J.Hb($.Wy,4,12,5123,0)},mz:function(){J.wY($.Wy,34962,$.Lp)
 J.wY($.Wy,34963,$.PE)
 J.GB($.Wy,$.PS,4,5126,!1,0,0)
-J.Hb($.Wy,4,12,5123,0)},E2:function(){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e
+J.Hb($.Wy,4,12,5123,0)},E2:function(){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d
 window.navigator.webkitGetGamepads()
 z=document.querySelector("#glcanvas")
 $.Wy=J.PB(z,"experimental-webgl")
@@ -663,11 +663,11 @@ D.Xg(32)
 D.ks(32)
 D.pB(32)
 y=J.lA($.Wy,35633)
-J.Rb($.Wy,y,"    precision highp float;\n    attribute vec4 aVertexPosition;\n\n    uniform mat4 uMVMatrix;\n    uniform mat4 uPMatrix;\n    varying float ambientOcclusion;\n    varying vec3 pos;\n\n    void main(void) {\n      pos = aVertexPosition.xyz;\n      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition.xyz, 1.0);\n      ambientOcclusion = aVertexPosition.w;\n    }\n  ")
+J.Rb($.Wy,y,"    precision highp float;\n    attribute vec4 aVertexPosition;\n\n    uniform mat4 uMVMatrix;\n    uniform mat4 uPMatrix;\n    varying vec3 position;\n\n    void main(void) {\n      position = aVertexPosition.xyz;\n      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition.xyz, 1.0);\n    }\n  ")
 J.Ef($.Wy,y)
 if(J.cN($.Wy,y,35713)!==!0){window.alert(J.zO($.Wy,y))
 return}x=J.lA($.Wy,35632)
-J.Rb($.Wy,x,"    #define M_PI 3.1415926535897932384626433832795\n    precision highp float;\n    uniform vec4 color;\n    varying float ambientOcclusion;\n    varying vec3 pos;\n\n    void main(void) {\n      float t = (pos.y+32.0)/64.0;\n      float aoy = 0.5 * (1.0 + sin((pos.y+32.0)/64.0 * M_PI / 2.0));\n      float aox = 0.5 * (1.0 + sin((-pos.x+32.0)/64.0 * M_PI / 2.0));\n      // ao = ambientOcclusion;\n      gl_FragColor = color * vec4(vec3(aox*aoy), 1.0);\n    }\n  ")
+J.Rb($.Wy,x,"    #define M_PI 3.1415926535897932384626433832795\n    precision highp float;\n    uniform vec4 color;\n    uniform vec4 ambientOcclusion;  // occlusion factor for each dimension.\n    varying vec3 position;\n\n    void main(void) {\n      vec4 ao = vec4(\n        0.5 * (1.0 + sin((position.y+32.0)/64.0 * M_PI / 2.0)),\n        0.5 * (1.0 + sin((-position.x+32.0)/64.0 * M_PI / 2.0)),\n        (1.0 + sin((position.z)/(1.62*32.0) * M_PI / 2.0)),\n        1.0);\n      ao = mix(vec4(1.0), ao, ambientOcclusion);\n      ao = pow(ao, vec4(1.25));\n      //gl_FragColor = color * vec4(vec3(mix(1.0, pow(ao.x, 1.2), ambientOcclusion.x)*mix(1.0, pow(ao.y, 1.2), ambientOcclusion.y)), 1.0);\n      gl_FragColor = color * vec4(vec3(ao.x*ao.y*ao.z), 1.0);\n    }\n  ")
 J.Ef($.Wy,x)
 if(J.cN($.Wy,x,35713)!==!0){window.alert(J.zO($.Wy,x))
 return}w=J.WG($.Wy)
@@ -680,130 +680,147 @@ J.Oo($.Wy,$.PS)
 v=J.a5($.Wy,w,"uPMatrix")
 u=J.a5($.Wy,w,"uMVMatrix")
 t=J.a5($.Wy,w,"color")
+s=J.a5($.Wy,w,"ambientOcclusion")
 J.N6($.Wy,0,0,z.width,z.height)
 J.Iz($.Wy,16640)
-s=z.width
-r=z.height
-if(typeof s!=="number")throw s.V()
-if(typeof r!=="number")throw H.s(r)
-q=D.wT(60,s/r,0.1,1000)
+r=z.width
+q=z.height
+if(typeof r!=="number")throw r.V()
+if(typeof q!=="number")throw H.s(q)
+p=D.wT(60,r/q,0.1,1000)
 J.jO($.Wy,w)
-r=$.Wy
-s=new Float32Array(q)
-s.$dartCachedLength=s.length
-J.pL(r,v,!1,s)
-for(p=null,o=0;o<2;++o)for(s=o-1,r=s>=0,n=o*64,m=0;m<2;++m){l=$.Lv()[o]
-if(m>=l.length)throw H.e(l,m)
-if(J.xC(l[m],0))continue
-p=D.nA(m*64,n)
-if(r){l=$.Lv()
-if(s<0)throw H.e(l,s)
-l=l[s]
-if(m>=l.length)throw H.e(l,m)
-k=J.xC(l[m],0)}else k=!0
-l=m+1
-if(l<$.Lv()[o].length){j=$.Lv()[o]
-if(l>=j.length)throw H.e(j,l)
-i=J.xC(j[l],0)}else i=!0
-if(k&&i){l=$.Wy
-j=$.It()
-h=$.Lv()[o]
-if(m>=h.length)throw H.e(h,m)
-h=h[m]
-if(h>>>0!==h||h>=5)throw H.e(j,h)
-h=j[h]
-j=h.length
-if(0>=j)throw H.e(h,0)
-g=h[0]
-if(typeof g!=="number")throw H.s(g)
-if(1>=j)throw H.e(h,1)
-f=h[1]
+q=$.Wy
+r=new Float32Array(p)
+r.$dartCachedLength=r.length
+J.pL(q,v,!1,r)
+for(o=null,n=0;n<2;++n)for(r=n-1,q=r>=0,m=n*64,l=0;l<2;++l){k=$.Lv()[n]
+if(l>=k.length)throw H.e(k,l)
+if(J.xC(k[l],0))continue
+o=D.nA(l*64,m)
+if(q){k=$.Lv()
+if(r<0)throw H.e(k,r)
+k=k[r]
+if(l>=k.length)throw H.e(k,l)
+j=J.xC(k[l],0)}else j=!0
+k=l+1
+if(k<$.Lv()[n].length){i=$.Lv()[n]
+if(k>=i.length)throw H.e(i,k)
+h=J.xC(i[k],0)}else h=!0
+if(j&&h){k=$.Wy
+i=$.It()
+g=$.Lv()[n]
+if(l>=g.length)throw H.e(g,l)
+g=g[l]
+if(g>>>0!==g||g>=5)throw H.e(i,g)
+g=i[g]
+i=g.length
+if(0>=i)throw H.e(g,0)
+f=g[0]
 if(typeof f!=="number")throw H.s(f)
-if(2>=j)throw H.e(h,2)
-e=h[2]
+if(1>=i)throw H.e(g,1)
+e=g[1]
 if(typeof e!=="number")throw H.s(e)
-if(3>=j)throw H.e(h,3)
-h=new Float32Array([0.8*g,0.8*f,0.8*e,h[3]])
-h.$dartCachedLength=h.length
-J.vt(l,t,h)
-h=$.Wy
-l=new Float32Array(p)
-l.$dartCachedLength=l.length
-J.pL(h,u,!1,l)
-D.pY()}else if(k){l=$.Wy
-j=$.It()
-h=$.Lv()[o]
-if(m>=h.length)throw H.e(h,m)
-h=h[m]
-if(h>>>0!==h||h>=5)throw H.e(j,h)
-h=j[h]
-j=h.length
-if(0>=j)throw H.e(h,0)
-g=h[0]
-if(typeof g!=="number")throw H.s(g)
-if(1>=j)throw H.e(h,1)
-f=h[1]
+if(2>=i)throw H.e(g,2)
+d=g[2]
+if(typeof d!=="number")throw H.s(d)
+if(3>=i)throw H.e(g,3)
+g=new Float32Array([0.8*f,0.8*e,0.8*d,g[3]])
+g.$dartCachedLength=g.length
+J.vt(k,t,g)
+g=$.Wy
+k=new Float32Array([1,1,1,0])
+k.$dartCachedLength=k.length
+J.vt(g,s,k)
+k=$.Wy
+g=new Float32Array(o)
+g.$dartCachedLength=g.length
+J.pL(k,u,!1,g)
+D.pY()}else if(j){k=$.Wy
+i=$.It()
+g=$.Lv()[n]
+if(l>=g.length)throw H.e(g,l)
+g=g[l]
+if(g>>>0!==g||g>=5)throw H.e(i,g)
+g=i[g]
+i=g.length
+if(0>=i)throw H.e(g,0)
+f=g[0]
 if(typeof f!=="number")throw H.s(f)
-if(2>=j)throw H.e(h,2)
-e=h[2]
+if(1>=i)throw H.e(g,1)
+e=g[1]
 if(typeof e!=="number")throw H.s(e)
-if(3>=j)throw H.e(h,3)
-h=new Float32Array([0.8*g,0.8*f,0.8*e,h[3]])
-h.$dartCachedLength=h.length
-J.vt(l,t,h)
-h=$.Wy
-l=new Float32Array(p)
-l.$dartCachedLength=l.length
-J.pL(h,u,!1,l)
-D.cJ()}else{l=$.Wy
-if(i){j=$.It()
-h=$.Lv()[o]
-if(m>=h.length)throw H.e(h,m)
-h=h[m]
-if(h>>>0!==h||h>=5)throw H.e(j,h)
-h=j[h]
-j=h.length
-if(0>=j)throw H.e(h,0)
-g=h[0]
-if(typeof g!=="number")throw H.s(g)
-if(1>=j)throw H.e(h,1)
-f=h[1]
+if(2>=i)throw H.e(g,2)
+d=g[2]
+if(typeof d!=="number")throw H.s(d)
+if(3>=i)throw H.e(g,3)
+g=new Float32Array([0.8*f,0.8*e,0.8*d,g[3]])
+g.$dartCachedLength=g.length
+J.vt(k,t,g)
+g=$.Wy
+k=new Float32Array([1,0,1,0])
+k.$dartCachedLength=k.length
+J.vt(g,s,k)
+k=$.Wy
+g=new Float32Array(o)
+g.$dartCachedLength=g.length
+J.pL(k,u,!1,g)
+D.cJ()}else{k=$.Wy
+if(h){i=$.It()
+g=$.Lv()[n]
+if(l>=g.length)throw H.e(g,l)
+g=g[l]
+if(g>>>0!==g||g>=5)throw H.e(i,g)
+g=i[g]
+i=g.length
+if(0>=i)throw H.e(g,0)
+f=g[0]
 if(typeof f!=="number")throw H.s(f)
-if(2>=j)throw H.e(h,2)
-e=h[2]
+if(1>=i)throw H.e(g,1)
+e=g[1]
 if(typeof e!=="number")throw H.s(e)
-if(3>=j)throw H.e(h,3)
-h=new Float32Array([0.65*g,0.65*f,0.65*e,h[3]])
-h.$dartCachedLength=h.length
-J.vt(l,t,h)
-h=$.Wy
-l=new Float32Array(p)
-l.$dartCachedLength=l.length
-J.pL(h,u,!1,l)
-D.mz()}else{j=$.It()
-h=$.Lv()[o]
-if(m>=h.length)throw H.e(h,m)
-h=h[m]
-if(h>>>0!==h||h>=5)throw H.e(j,h)
-h=j[h]
-j=h.length
-if(0>=j)throw H.e(h,0)
-g=h[0]
-if(typeof g!=="number")throw H.s(g)
-if(1>=j)throw H.e(h,1)
-f=h[1]
+if(2>=i)throw H.e(g,2)
+d=g[2]
+if(typeof d!=="number")throw H.s(d)
+if(3>=i)throw H.e(g,3)
+g=new Float32Array([0.65*f,0.65*e,0.65*d,g[3]])
+g.$dartCachedLength=g.length
+J.vt(k,t,g)
+g=$.Wy
+k=new Float32Array([0,1,1,0])
+k.$dartCachedLength=k.length
+J.vt(g,s,k)
+k=$.Wy
+g=new Float32Array(o)
+g.$dartCachedLength=g.length
+J.pL(k,u,!1,g)
+D.mz()}else{i=$.It()
+g=$.Lv()[n]
+if(l>=g.length)throw H.e(g,l)
+g=g[l]
+if(g>>>0!==g||g>=5)throw H.e(i,g)
+g=i[g]
+i=g.length
+if(0>=i)throw H.e(g,0)
+f=g[0]
 if(typeof f!=="number")throw H.s(f)
-if(2>=j)throw H.e(h,2)
-e=h[2]
+if(1>=i)throw H.e(g,1)
+e=g[1]
 if(typeof e!=="number")throw H.s(e)
-if(3>=j)throw H.e(h,3)
-h=new Float32Array([1*g,1*f,1*e,h[3]])
-h.$dartCachedLength=h.length
-J.vt(l,t,h)
-h=$.Wy
-l=new Float32Array(p)
-l.$dartCachedLength=l.length
-J.pL(h,u,!1,l)
+if(2>=i)throw H.e(g,2)
+d=g[2]
+if(typeof d!=="number")throw H.s(d)
+if(3>=i)throw H.e(g,3)
+g=new Float32Array([1*f,1*e,1*d,g[3]])
+g.$dartCachedLength=g.length
+J.vt(k,t,g)
+g=$.Wy
+k=new Float32Array([0,0,1,0])
+k.$dartCachedLength=k.length
+J.vt(g,s,k)
+k=$.Wy
+g=new Float32Array(o)
+g.$dartCachedLength=g.length
+J.pL(k,u,!1,g)
 D.ze()}}}}},1],])
 I.$finishClasses($$,$,null)
 $$=null
