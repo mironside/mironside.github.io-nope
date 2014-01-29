@@ -3337,7 +3337,7 @@ J.GB($.Wy,$.PS,4,5126,!1,0,0)
 J.Hb($.Wy,4,12,5123,0)},mz:function(){J.wY($.Wy,34962,$.Lp)
 J.wY($.Wy,34963,$.PE)
 J.GB($.Wy,$.PS,4,5126,!1,0,0)
-J.Hb($.Wy,4,12,5123,0)},E2:function(){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d
+J.Hb($.Wy,4,12,5123,0)},E2:function(){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g
 window.navigator.webkitGetGamepads()
 z=document.querySelector("#glcanvas")
 y=J.RE(z)
@@ -3376,8 +3376,15 @@ y=$.Wy
 p=new Float32Array(q)
 p.$dartCachedLength=p.length
 J.pL(y,u,!1,p)
-for(o=null,n=0;n<2;++n)for(y=n-1,p=y>=0,m=n*64,l=0;l<2;++l){if(J.xC(J.UQ($.Lv()[n],l),0))continue
-o=D.nA(l*64,m)
+for(o=null,n=0;$.Lv(),n<8;++n){y=n-1
+p=y>=0
+m=n*64
+l=0
+while(!0){k=J.q8($.Lv()[n])
+if(typeof k!=="number")throw H.s(k)
+if(!(l<k))break
+c$1:{if(J.xC(J.UQ($.Lv()[n],l),0))break c$1
+o=D.nA(l*64-128,m)
 if(p){k=$.Lv()
 if(y<0)throw H.e(k,y)
 j=J.xC(J.UQ(k[y],l),0)}else j=!0
@@ -3389,15 +3396,7 @@ if(j&&h){k=$.Wy
 i=$.It()
 g=J.UQ($.Lv()[n],l)
 if(g>>>0!==g||g>=5)throw H.e(i,g)
-g=i[g]
-i=J.U6(g)
-f=i.t(g,0)
-if(typeof f!=="number")throw H.s(f)
-e=i.t(g,1)
-if(typeof e!=="number")throw H.s(e)
-d=i.t(g,2)
-if(typeof d!=="number")throw H.s(d)
-g=new Float32Array([0.8*f,0.8*e,0.8*d,i.t(g,3)])
+g=new Float32Array(i[g])
 g.$dartCachedLength=g.length
 J.vt(k,s,g)
 g=$.Wy
@@ -3412,15 +3411,7 @@ D.pY()}else if(j){k=$.Wy
 i=$.It()
 g=J.UQ($.Lv()[n],l)
 if(g>>>0!==g||g>=5)throw H.e(i,g)
-g=i[g]
-i=J.U6(g)
-f=i.t(g,0)
-if(typeof f!=="number")throw H.s(f)
-e=i.t(g,1)
-if(typeof e!=="number")throw H.s(e)
-d=i.t(g,2)
-if(typeof d!=="number")throw H.s(d)
-g=new Float32Array([0.8*f,0.8*e,0.8*d,i.t(g,3)])
+g=new Float32Array(i[g])
 g.$dartCachedLength=g.length
 J.vt(k,s,g)
 g=$.Wy
@@ -3435,15 +3426,7 @@ D.cJ()}else{k=$.Wy
 if(h){i=$.It()
 g=J.UQ($.Lv()[n],l)
 if(g>>>0!==g||g>=5)throw H.e(i,g)
-g=i[g]
-i=J.U6(g)
-f=i.t(g,0)
-if(typeof f!=="number")throw H.s(f)
-e=i.t(g,1)
-if(typeof e!=="number")throw H.s(e)
-d=i.t(g,2)
-if(typeof d!=="number")throw H.s(d)
-g=new Float32Array([0.65*f,0.65*e,0.65*d,i.t(g,3)])
+g=new Float32Array(i[g])
 g.$dartCachedLength=g.length
 J.vt(k,s,g)
 g=$.Wy
@@ -3457,15 +3440,7 @@ J.pL(k,t,!1,g)
 D.mz()}else{i=$.It()
 g=J.UQ($.Lv()[n],l)
 if(g>>>0!==g||g>=5)throw H.e(i,g)
-g=i[g]
-i=J.U6(g)
-f=i.t(g,0)
-if(typeof f!=="number")throw H.s(f)
-e=i.t(g,1)
-if(typeof e!=="number")throw H.s(e)
-d=i.t(g,2)
-if(typeof d!=="number")throw H.s(d)
-g=new Float32Array([1*f,1*e,1*d,i.t(g,3)])
+g=new Float32Array(i[g])
 g.$dartCachedLength=g.length
 J.vt(k,s,g)
 g=$.Wy
@@ -3476,7 +3451,7 @@ k=$.Wy
 g=new Float32Array(o)
 g.$dartCachedLength=g.length
 J.pL(k,t,!1,g)
-D.ze()}}}}}],["metadata","file:///c:/Users/colsen/Desktop/dart/dart-sdk/lib/html/html_common/metadata.dart",,B,{fA:{"":"a;d9,Ln",static:{"":"n4,OB,pj,PZ,Dp",}},tz:{"":"a;"},jR:{"":"a;oc"},FL:{"":"a;"},c5:{"":"a;"}}],["observe.src.change_notifier","package:observe/src/change_notifier.dart",,O,{RB:{"":"a;"}}],["observe.src.change_record","package:observe/src/change_record.dart",,T,{yj:{"":"a;"}}],["observe.src.list_diff","package:observe/src/list_diff.dart",,G,{DA:{"":"a;"}}],["observe.src.metadata","package:observe/src/metadata.dart",,K,{vl:{"":"a;"}}],["polymer","package:polymer/polymer.dart",,A,{GA:function(a,b,c,d){var z,y,x,w,v,u
+D.ze()}}}++l}}}}],["metadata","file:///c:/Users/colsen/Desktop/dart/dart-sdk/lib/html/html_common/metadata.dart",,B,{fA:{"":"a;d9,Ln",static:{"":"n4,OB,pj,PZ,Dp",}},tz:{"":"a;"},jR:{"":"a;oc"},FL:{"":"a;"},c5:{"":"a;"}}],["observe.src.change_notifier","package:observe/src/change_notifier.dart",,O,{RB:{"":"a;"}}],["observe.src.change_record","package:observe/src/change_record.dart",,T,{yj:{"":"a;"}}],["observe.src.list_diff","package:observe/src/list_diff.dart",,G,{DA:{"":"a;"}}],["observe.src.metadata","package:observe/src/metadata.dart",,K,{vl:{"":"a;"}}],["polymer","package:polymer/polymer.dart",,A,{GA:function(a,b,c,d){var z,y,x,w,v,u
 if(c==null)c=P.Ls(null,null,null,W.QF)
 if(d==null){d=[]
 d.$builtinTypeInfo=[J.O]}if(a==null){z="warning: "+H.d(b)+" not found."
@@ -3884,7 +3859,7 @@ I.$lazy($,"_toStringList","Ml","RM",function(){return P.A(null,null)})
 I.$lazy($,"_asyncCallbacks","r1","P8",function(){return P.NZ(null,{func:"X0",void:true})})
 I.$lazy($,"_toStringVisiting","xg","xb",function(){return P.yv(null)})
 I.$lazy($,"_toStringList","yu","tw",function(){return P.A(null,null)})
-I.$lazy($,"map","Ir","Lv",function(){return[[1,2,0,2,4,0,0,0],[3,1,0,2,4,0,0,0],[0,0,0,2,1,1,4,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,3,3,0,0,0,0,1],[0,3,3,0,0,0,0,1],[0,0,0,0,0,0,0,1]]})
+I.$lazy($,"map","Ir","Lv",function(){return[[4,2,0,2,4,0,0,0],[3,1,1,2,4,0,0,0],[0,0,0,2,1,1,4,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,3,3,0,0,0,0,1],[0,3,3,0,0,0,0,1],[0,0,0,0,0,0,0,1]]})
 I.$lazy($,"colors","MY","It",function(){return[[0,0,0,1],[1,0,0,1],[0,1,0,1],[0,0,1,1],[1,1,1,1]]})
 I.$lazy($,"_librariesToLoad","x2","nT",function(){return A.GA(document,J.qG(C.ol.gmW(window)),null,null)})
 
