@@ -3337,7 +3337,7 @@ J.GB($.Wy,$.PS,4,5126,!1,0,0)
 J.Hb($.Wy,4,12,5123,0)},mz:function(){J.wY($.Wy,34962,$.Lp)
 J.wY($.Wy,34963,$.PE)
 J.GB($.Wy,$.PS,4,5126,!1,0,0)
-J.Hb($.Wy,4,12,5123,0)},E2:function(){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g
+J.Hb($.Wy,4,12,5123,0)},E2:function(){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f
 window.navigator.webkitGetGamepads()
 z=document.querySelector("#glcanvas")
 y=J.RE(z)
@@ -3354,7 +3354,7 @@ J.Rb($.Wy,x,"    precision highp float;\n    attribute vec4 aVertexPosition;\n\n
 J.Ef($.Wy,x)
 if(J.cN($.Wy,x,35713)!==!0){window.alert(J.zO($.Wy,x))
 return}w=J.lA($.Wy,35632)
-J.Rb($.Wy,w,"    #define M_PI 3.1415926535897932384626433832795\n    precision highp float;\n    uniform vec4 color;\n    uniform vec4 ambientOcclusion;  // occlusion factor for each dimension.\n    varying vec3 position;\n\n    void main(void) {\n      vec4 ao = vec4(\n        0.5 * (1.0 + sin((position.y+32.0)/64.0 * M_PI / 2.0)),\n        0.5 * (1.0 + sin((-position.x+32.0)/64.0 * M_PI / 2.0)),\n        (1.0 + sin((position.z)/(1.62*32.0) * M_PI / 2.0)),\n        1.0);\n      ao = mix(vec4(1.0), ao, ambientOcclusion);\n      ao = pow(ao, vec4(1.25));\n      //gl_FragColor = color * vec4(vec3(mix(1.0, pow(ao.x, 1.2), ambientOcclusion.x)*mix(1.0, pow(ao.y, 1.2), ambientOcclusion.y)), 1.0);\n      gl_FragColor = color * vec4(vec3(ao.x*ao.y*ao.z), 1.0);\n    }\n  ")
+J.Rb($.Wy,w,"    #define M_PI 3.1415926535897932384626433832795\n    precision highp float;\n    uniform vec4 color;\n    uniform vec4 ambientOcclusion;  // occlusion factor for x,y,z,xy dimensions\n    varying vec3 position;\n\n\n    void main(void) {\n      float ao_distance = 64.0;\n      float ao_power = 1.25;\n      vec4 pos = vec4(\n        (-position.x+32.0)/ao_distance,\n        (position.y+32.0)/ao_distance,\n        (position.z)/ao_distance,\n        sqrt(pow((position.x-32.0), 2.0) + pow((position.y+32.0), 2.0))/ao_distance\n      );\n      pos = clamp(pos, 0.0, 1.0);\n\n      vec4 ao = vec4(\n        0.5 * sin(pos.y * M_PI / 2.0) + 0.5,\n        0.5 * sin(pos.x * M_PI / 2.0) + 0.5,\n        1.0 * sin(pos.z * M_PI / 2.0) + 1.0,\n        0.5 * sin(pos.w * M_PI / 2.0) + 0.5\n        );\n\n      ao = mix(vec4(1.0), ao, ambientOcclusion);\n      ao = pow(ao, vec4(ao_power));\n      gl_FragColor = color * vec4(mix(vec3(ao.x*ao.y*ao.z), vec3(ao.w), ambientOcclusion.w), 1.0);\n    }\n  ")
 J.Ef($.Wy,w)
 if(J.cN($.Wy,w,35713)!==!0){window.alert(J.zO($.Wy,w))
 return}v=J.WG($.Wy)
@@ -3392,65 +3392,72 @@ k=l+1
 i=J.q8($.Lv()[n])
 if(typeof i!=="number")throw H.s(i)
 h=k>=i||J.xC(J.UQ($.Lv()[n],k),0)
+if(p){i=J.q8($.Lv()[n])
+if(typeof i!=="number")throw H.s(i)
+if(!(k>=i)){i=$.Lv()
+if(y<0)throw H.e(i,y)
+k=J.xC(J.UQ(i[y],k),0)
+g=k}else g=!0}else g=!0
 if(j&&h){k=$.Wy
 i=$.It()
-g=J.UQ($.Lv()[n],l)
-if(g>>>0!==g||g>=5)throw H.e(i,g)
-g=new Float32Array(i[g])
-g.$dartCachedLength=g.length
-J.vt(k,s,g)
-g=$.Wy
+f=J.UQ($.Lv()[n],l)
+if(f>>>0!==f||f>=5)throw H.e(i,f)
+f=new Float32Array(i[f])
+f.$dartCachedLength=f.length
+J.vt(k,s,f)
+f=$.Wy
 k=new Float32Array([1,1,1,0])
 k.$dartCachedLength=k.length
-J.vt(g,r,k)
+J.vt(f,r,k)
 k=$.Wy
-g=new Float32Array(o)
-g.$dartCachedLength=g.length
-J.pL(k,t,!1,g)
+f=new Float32Array(o)
+f.$dartCachedLength=f.length
+J.pL(k,t,!1,f)
 D.pY()}else if(j){k=$.Wy
 i=$.It()
-g=J.UQ($.Lv()[n],l)
-if(g>>>0!==g||g>=5)throw H.e(i,g)
-g=new Float32Array(i[g])
-g.$dartCachedLength=g.length
-J.vt(k,s,g)
-g=$.Wy
+f=J.UQ($.Lv()[n],l)
+if(f>>>0!==f||f>=5)throw H.e(i,f)
+f=new Float32Array(i[f])
+f.$dartCachedLength=f.length
+J.vt(k,s,f)
+f=$.Wy
 k=new Float32Array([1,0,1,0])
 k.$dartCachedLength=k.length
-J.vt(g,r,k)
+J.vt(f,r,k)
 k=$.Wy
-g=new Float32Array(o)
-g.$dartCachedLength=g.length
-J.pL(k,t,!1,g)
+f=new Float32Array(o)
+f.$dartCachedLength=f.length
+J.pL(k,t,!1,f)
 D.cJ()}else{k=$.Wy
 if(h){i=$.It()
-g=J.UQ($.Lv()[n],l)
-if(g>>>0!==g||g>=5)throw H.e(i,g)
-g=new Float32Array(i[g])
-g.$dartCachedLength=g.length
-J.vt(k,s,g)
-g=$.Wy
+f=J.UQ($.Lv()[n],l)
+if(f>>>0!==f||f>=5)throw H.e(i,f)
+f=new Float32Array(i[f])
+f.$dartCachedLength=f.length
+J.vt(k,s,f)
+f=$.Wy
 k=new Float32Array([0,1,1,0])
 k.$dartCachedLength=k.length
-J.vt(g,r,k)
+J.vt(f,r,k)
 k=$.Wy
-g=new Float32Array(o)
-g.$dartCachedLength=g.length
-J.pL(k,t,!1,g)
+f=new Float32Array(o)
+f.$dartCachedLength=f.length
+J.pL(k,t,!1,f)
 D.mz()}else{i=$.It()
-g=J.UQ($.Lv()[n],l)
-if(g>>>0!==g||g>=5)throw H.e(i,g)
-g=new Float32Array(i[g])
-g.$dartCachedLength=g.length
-J.vt(k,s,g)
-g=$.Wy
-k=new Float32Array([0,0,1,0])
-k.$dartCachedLength=k.length
-J.vt(g,r,k)
+f=J.UQ($.Lv()[n],l)
+if(f>>>0!==f||f>=5)throw H.e(i,f)
+f=new Float32Array(i[f])
+f.$dartCachedLength=f.length
+J.vt(k,s,f)
 k=$.Wy
-g=new Float32Array(o)
-g.$dartCachedLength=g.length
-J.pL(k,t,!1,g)
+if(g){i=new Float32Array([0,0,0,1])
+i.$dartCachedLength=i.length
+J.vt(k,r,i)}else{i=new Float32Array([0,0,0,0])
+i.$dartCachedLength=i.length
+J.vt(k,r,i)}k=$.Wy
+i=new Float32Array(o)
+i.$dartCachedLength=i.length
+J.pL(k,t,!1,i)
 D.ze()}}}++l}}}}],["metadata","file:///c:/Users/colsen/Desktop/dart/dart-sdk/lib/html/html_common/metadata.dart",,B,{fA:{"":"a;d9,Ln",static:{"":"n4,OB,pj,PZ,Dp",}},tz:{"":"a;"},jR:{"":"a;oc"},FL:{"":"a;"},c5:{"":"a;"}}],["observe.src.change_notifier","package:observe/src/change_notifier.dart",,O,{RB:{"":"a;"}}],["observe.src.change_record","package:observe/src/change_record.dart",,T,{yj:{"":"a;"}}],["observe.src.list_diff","package:observe/src/list_diff.dart",,G,{DA:{"":"a;"}}],["observe.src.metadata","package:observe/src/metadata.dart",,K,{vl:{"":"a;"}}],["polymer","package:polymer/polymer.dart",,A,{GA:function(a,b,c,d){var z,y,x,w,v,u
 if(c==null)c=P.Ls(null,null,null,W.QF)
 if(d==null){d=[]
@@ -3859,7 +3866,7 @@ I.$lazy($,"_toStringList","Ml","RM",function(){return P.A(null,null)})
 I.$lazy($,"_asyncCallbacks","r1","P8",function(){return P.NZ(null,{func:"X0",void:true})})
 I.$lazy($,"_toStringVisiting","xg","xb",function(){return P.yv(null)})
 I.$lazy($,"_toStringList","yu","tw",function(){return P.A(null,null)})
-I.$lazy($,"map","Ir","Lv",function(){return[[4,2,0,2,4,0,0,0],[3,1,1,2,4,0,0,0],[0,0,0,2,1,1,4,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,3,3,0,0,0,0,1],[0,3,3,0,0,0,0,1],[0,0,0,0,0,0,0,1]]})
+I.$lazy($,"map","Ir","Lv",function(){return[[1,2,0,2,4,0,0,0],[3,1,1,2,4,0,0,0],[0,0,0,2,1,1,4,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,3,3,0,0,0,0,1],[0,3,3,0,0,0,0,1],[0,0,0,0,0,0,0,1]]})
 I.$lazy($,"colors","MY","It",function(){return[[0,0,0,1],[1,0,0,1],[0,1,0,1],[0,0,1,1],[1,1,1,1]]})
 I.$lazy($,"_librariesToLoad","x2","nT",function(){return A.GA(document,J.qG(C.ol.gmW(window)),null,null)})
 
