@@ -3,16 +3,18 @@ layout: post
 title: Notes on Task Based Build System
 ---
 
-- Line - a Task name and opaque data object that declare all task information.  data is passed between tasks through Lines.
+- **Line** - A Task name and opaque data object.  Information can only be passed between Tasks through Lines.
 
-- File - a physical file on disk.  Files can contain a list of File dependencies.  Files may also store an Error if they could not be built.
+- **File** - A physical file on disk.  Files represent Inputs to a Task or Outputs that will be created during Task Execution.  Files may have a list of File dependencies forming a tree (eg. C include files).
 
-- Task
-  - Parse - parses the task data object and returns a list of Input and Output files.  may also compute Input file dependencies and add them to the input Files.  Parse is does not read any files.  if Parse returns no Output files it is considered to be a MetaTask that will create new Tasks.  If Parse does return Outputs it is assumed that it will not create new tasks on Execute and will not change the task graph.
+- **Task** - Holds a Task-specific opaque data object and has associated Parse and Execute functions.
 
-  - Execute - processes the task using the task data object.  can read inputs and write output files.  if an error occurs when producing an output File the error is noted on the output File.  input and outputs are crc'd and stored during a build.  If crc's for all inputs and outputs for this task match the previous build nothing has changed and the Execute step is skipped.  MetaTasks may create new tasks during Execution by returning Task Lines.
+  - **Parse** - Parses the task data object and returns a list of Input and Output Files.  May also compute Input file dependencies, add them to the Input Files.  Parse does not read any Files.
 
-Tasks dependencies are implicit based on their Inputs and Outputs.  If Task B has an Input File that is also an Output of Task A then Task B depends on Task A.
+  - **Execute** - Processes the task using the Task data object: reads Input Files and produces Output Files.
+- **MetaTask** - Same as a Task with the addition that it can create new Tasks when Executed.  A MetaTask returns no Outputs when Parsed.
+
+Task dependencies are implicit based on their Inputs and Outputs.  If Task B has an Input File that is also an Output of Task A then Task B depends on Task A.
 
 
 Let's say we want to use this task system to build a program.  That is, we want to:
@@ -23,30 +25,30 @@ Let's say we want to use this task system to build a program.  That is, we want 
 
 First is the project Task Line:
 
-```
+{% highlight none %}
 [project, {ProjectFile: myprogram.project}]
-```
+{% endhighlight %}
 
 This declares that this is a project task with a data object.  The task system uses the Project task to Parse the data object producing a list of input and output files.
 
-```
+{% highlight none %}
 project
   Input: myprogram.project
   Output:
-```
+{% endhighlight %}
 
 The project Parse did not produce any Output files so it is considered at MetaTask and must Execute.  The project Task Executes, reads myprogram.project and finds that the target is game.exe and there are three source files: main.c, game.c and input.c.  It generates three compile Task Lines and one link Task Line which are added to the Task queue.
 
-```
+{% highlight none %}
 [compile, {SourceFile: main.c, ObjectFile: main.obj}]
 [compile, {SourceFile: game.c, ObjectFile: game.obj}]
 [compile, {SourceFile: input.c, ObjectFile: input.obj}]
 [link, {ObjectFiles: [main.obj, game.obj, input.obj], Executable: game.exe}]
-```
+{% endhighlight %}
 
-The tasks are Parsed to determine the Inputs and Outputs based on their Task data object.
+The tasks are Parsed to determine the Inputs and Outputs from their Task data object.
 
-<code>
+{% highlight none %}
 compile
   Inputs: main.c
   Outputs: main.obj
@@ -62,7 +64,7 @@ compile
 link
   Inputs: [main.obj, game.obj, input.obj]
   Outputs: game.exe
-</code>
+{% endhighlight %}
 
 The link Task has Inputs main.obj, game.obj and input.obj which are also Outputs of the three compile Tasks.  Therefore the link Task is implicitly dependent on all three compile Tasks and cannot be run until they complete.
 
