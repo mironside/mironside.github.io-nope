@@ -6,9 +6,8 @@ relative_permalinks: true
 highlighter:         true
 
 # Setup
-title:               Poole
-tagline:             The Jekyll Butler
-url:                 http://getpoole.com
+title:               mironside
+url:                 http://mironside.com
 paginate:            1
 baseurl:             ""
 
@@ -18,14 +17,3 @@ baseurl:             ""
 sass:
   sass_dir:          _sass
   style:            :compressed
-
-# About/contact
-author:
-  name:              Mark Otto
-  url:               https://twitter.com/mdo
-  email:             markdotto@gmail.com
-
-# Custom vars
-version:             1.0.0
-github:
-  repo:              https://github.com/poole/poole
