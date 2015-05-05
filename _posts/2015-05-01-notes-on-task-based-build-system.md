@@ -85,7 +85,7 @@ compile
     Outputs: main.obj
 {% endhighlight %}
 
-The Task is checked for changes.  Inputs main.c main.h and game.h and Output main.obj are all unchanged since the last build.  However, the dependency input.h has changed so the Task is Executed compiling main.c into main.obj.
+The Task is checked for changes.  Inputs main.c main.h game.h and Output main.obj are all unchanged since the last build.  However, the dependency input.h has changed so the Task is Executed compiling main.c into main.obj.
 
 All three compile Tasks complete and the link Task now has no dependencies.  The Output game.exe matches the previous build but main.obj has changed since it was just re-compiled.  The link Task Executes linking the three object file Inputs into the game.exe Output file.
 
