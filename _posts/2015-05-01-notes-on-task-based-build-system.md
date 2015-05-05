@@ -17,9 +17,9 @@ title: Notes on Task Based Build System
 
   - **Execute** - Processes the task using the Task data object: reads Input Files and creates Output Files.
 
-- **MetaTask** - Have the same capabilities as a Task but can create new Task Lines that get added to Scheduler when Executed.
+- **MetaTask** - Have the same capabilities as a Task but can create new Task Lines that get added to Scheduler when Executed.  Because they create Tasks MetaTasks always Execute.
 
-Task dependencies are implicit based on Input and Output Files.  If Task B uses the File "main.obj" as Input and Task A outputs "main.obj" then Task B depends on Task A.  In other words, Task A must complete before Task B can Execute.  The Task Scheduler will only Execute Tasks that have no depdendencies or whose dependencies have completed.  When a Task completes the Scheduler re-evaluates to see if any new Tasks can Execute.  This repeats until all Tasks are complete.
+Task dependencies are implicit based on Input and Output Files.  If Task B uses the File "main.obj" as Input and Task A outputs "main.obj" then Task B depends on Task A.  In other words, Task A must complete before Task B can Execute.  The Task Scheduler will only Execute Tasks that have no dependencies or whose dependencies have completed.  When a Task completes the Scheduler re-evaluates to see if any new Tasks can Execute.  This repeats until all Tasks are complete.
 
 
 Example
@@ -75,10 +75,16 @@ link
     Outputs: game.exe
 {% endhighlight %}
 
-The link Task uses the files main.obj, game.obj and input.obj as Inputs which are also the Outputs of the compile Tasks.  Therefore the link Task is implicitly dependent on all three compile Tasks and cannot be run until they complete.
+The link Task uses the files main.obj, game.obj and input.obj as Inputs which are also the Outputs of the compile Tasks.  Therefore the link Task is implicitly dependent on all three compile Tasks and cannot be run until they complete.  The three compile Tasks do not depend on any other Tasks so they are each Executed.  Since they don't depend on each other they could even Execute in parallel.
 
-The three compile Tasks do not depend on any other Tasks so they are each Executed.  Since they don't depend on each other they could Execute in parallel.  Each comile Task compiles it's Input source file and produces it's Output object file.
+Using main.c as the example, FindDependencies runs and discovers that main.c #includes main.h and game.h (which #includes input.h), these are added as File dependencies.
 
-With all three compile Tasks complete the link Task now has no dependencies.  It Executes linking the three object file Inputs into the game.exe Output file.
+{% highlight none %}
+main.c -> [main.h [game.h -> input.h]]
+{% endhighlight %}
+
+The Task is checked for changes.  Inputs main.c main.h and game.h and Output main.obj are all unchanged since the last build.  However, the dependency input.h has changed so the Task is Executed compiling main.c into main.obj.
+
+All three compile Tasks complete and the link Task now has no dependencies.  The Output game.exe matches the previous build but main.obj has changed since it was just re-compiled.  The link Task Executes linking the three object file Inputs into the game.exe Output file.
 
 With no more tasks in the queue, the build is complete.
