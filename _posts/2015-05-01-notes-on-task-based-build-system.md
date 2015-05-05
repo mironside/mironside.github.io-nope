@@ -17,7 +17,7 @@ title: Notes on Task Based Build System
 
   - **Execute** - Processes the task using the Task data object: reads Input Files and creates Output Files.
 
-- **MetaTask** - Has the same capabilities as a Task but returns new Task Lines when Executed.
+- **MetaTask** - Have the same capabilities as a Task but can create new Task Lines that get added to Scheduler when Executed.
 
 Task dependencies are implicit based on Input and Output Files.  If Task B uses the File "main.obj" as Input and Task A outputs "main.obj" then Task B depends on Task A.  In other words, Task A must complete before Task B can Execute.  The Task Scheduler will only Execute Tasks that have no depdendencies or whose dependencies have completed.  When a Task completes the Scheduler re-evaluates to see if any new Tasks can Execute.  This repeats until all Tasks are complete.
 
