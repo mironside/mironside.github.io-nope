@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Notes on Task Based Build System
+title: Notes on a Task Based Build System
 ---
 
 - **Line** - Tasks are defined by Lines which declare the Task name and Task-specific data.  Information can only be passed between Tasks through Lines.
