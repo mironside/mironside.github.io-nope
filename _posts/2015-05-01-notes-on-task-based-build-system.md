@@ -80,7 +80,9 @@ The link Task uses the files main.obj, game.obj and input.obj as Inputs which ar
 Using main.c as the example, FindDependencies runs and discovers that main.c #includes main.h and game.h (which #includes input.h), these are added as File dependencies.
 
 {% highlight none %}
-main.c -> [main.h [game.h -> input.h]]
+compile
+    Inputs: main.c -> [main.h [game.h -> input.h]]
+    Outputs: main.obj
 {% endhighlight %}
 
 The Task is checked for changes.  Inputs main.c main.h and game.h and Output main.obj are all unchanged since the last build.  However, the dependency input.h has changed so the Task is Executed compiling main.c into main.obj.
