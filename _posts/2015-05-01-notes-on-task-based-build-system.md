@@ -3,15 +3,20 @@ layout: post
 title: Notes on Task Based Build System
 ---
 
-- **Line** - A Task name and opaque data object.  Information can only be passed between Tasks through Lines.
+- **Line** - Tasks are defined by Lines which declare the Task name and Task-specific data.  Information can only be passed between Tasks through Lines.
 
-- **File** - A physical file on disk.  Files represent Inputs to a Task or Outputs that will be created during Task Execution.  Files may have a list of File dependencies forming a tree (eg. C include files).
+- **File** - Represents a physical file on disk that may be an Input or an Output of a Task.  A File can have a list of File Dependencies, forming a tree.
 
-- **Task** - Holds a Task-specific opaque data object and has associated Parse and Execute functions.
+  - **FindDependencies** - A File may have an associated function to find it's dependencies.  For instance, a .c File would have a function to find Files it #includes.
 
-  - **Parse** - Parses the task data object and returns a list of Input and Output Files.  May also compute Input file dependencies, add them to the Input Files.  Parse does not read any Files.
+- **Task** - A Task consists of it's opaque data object and Parse and Execute functions which perform the actual logic of the Task.
+
+  - **Parse** - Parses the task data object and returns the list of Input and Output Files.  Parse cannot read Input Files, it only translates the task-specific data into general inputs and outputs used for scheduling.
+
+  - **HasChanges** - Determines if any Input, Input Dependencies or Output Files have changed.  If there are no changes the Task does not need to Execute.
 
   - **Execute** - Processes the task using the Task data object: reads Input Files and produces Output Files.
+
 - **MetaTask** - Same as a Task with the addition that it can return new Task Lines when Executed.  A MetaTask returns no Outputs when Parsed.
 
 Task dependencies are implicit based on their Inputs and Outputs.  If Task B has an Input File that is also an Output of Task A then Task B depends on Task A.  That is, B cannot Execute until A has completed.
