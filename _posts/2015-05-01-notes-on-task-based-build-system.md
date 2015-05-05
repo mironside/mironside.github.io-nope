@@ -15,11 +15,11 @@ title: Notes on Task Based Build System
 
   - **HasChanges** - Determines if any Input, Input Dependencies or Output Files have changed.  If there are no changes the Task does not need to Execute.
 
-  - **Execute** - Processes the task using the Task data object: reads Input Files and produces Output Files.
+  - **Execute** - Processes the task using the Task data object: reads Input Files and creates Output Files.
 
-- **MetaTask** - Same as a Task with the addition that it can return new Task Lines when Executed.  A MetaTask returns no Outputs when Parsed.
+- **MetaTask** - Has the same capabilities as a Task but returns new Task Lines when Executed.
 
-Task dependencies are implicit based on their Inputs and Outputs.  If Task B has an Input File that is also an Output of Task A then Task B depends on Task A.  That is, B cannot Execute until A has completed.
+Task dependencies are implicit based on Input and Output Files.  If Task B uses the File "main.obj" as Input and Task A outputs "main.obj" then Task B depends on Task A.  In other words, Task A must complete before Task B can Execute.  The Task Scheduler will only Execute Tasks that have no depdendencies or whose dependencies have completed.  When a Task completes the Scheduler re-evaluates to see if any new Tasks can Execute.  This repeats until all Tasks are complete.
 
 
 Example
