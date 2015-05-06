@@ -3,7 +3,7 @@ layout: post
 title: Build System in Go
 ---
 
-I wrote a golang package called tiny/task which implements the ideas of the task based build system described in a [previous post]({% post_url 2015-05-01-notes-on-task-based-build-system %}).  Here is the godoc
+I wrote a golang package called tiny/task which implements the ideas of the task based build system described in a [previous post]({% post_url 2015-05-01-notes-on-task-based-build-system %}).  Here is the tiny/task godoc:
 
 {% highlight golang %}
 type Line struct {
