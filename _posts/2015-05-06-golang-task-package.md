@@ -21,7 +21,9 @@ func Execute(tasklines []Line) error
 {% endhighlight %}
 
 
-Using this package it is very easy to define your own tasks and have tiny/task schedule and execute them.  Here is a program that declares a basic compile task and then runs a compile task that compiles main.c to main.obj.
+tiny/task makes it is very easy to define your own tasks, schedule and execute them.  Internally tiny/task handles crc'ing input and output files to detect unchanged files and file dependencies between tasks to ensure correct task execution order.
+
+Here is a simple program that declares a compile task and schedules a task to compile main.c to main.obj.
 
 {% highlight golang %}
 package main
