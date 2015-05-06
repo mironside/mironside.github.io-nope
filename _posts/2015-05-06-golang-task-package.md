@@ -21,7 +21,7 @@ func Execute(tasklines []Line) error
 {% endhighlight %}
 
 
-With tiny/task it is very easy to define your own tasks, schedule and execute them.  Internally tiny/task handles crc'ing input/output files to detect file changes.  It also discovers file dependencies between tasks and ensures tasks execute in the correct order.
+With tiny/task it is very easy to define your own tasks, schedule and execute them.  Internally tiny/task handles crc'ing input/output files to detect file changes.  It also discovers file dependencies between tasks and ensures that tasks execute in the correct order.
 
 Here is a simple program that declares a compile task and schedules a task to compile main.c to main.obj.
 
