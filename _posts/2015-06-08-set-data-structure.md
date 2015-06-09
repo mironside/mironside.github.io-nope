@@ -36,7 +36,7 @@ for(int i = 0; i < count; i++)
 // 5 7
 {% endhighlight %}
 
-The exemplifies the basic idea, but this should get wrapped up in a struct...and here is where the complications lie.
+This exemplifies the basic idea, but this should get wrapped up in a struct for convenience...and here is where the complications lie.
 
 {% highlight c %}
 struct Bag {
