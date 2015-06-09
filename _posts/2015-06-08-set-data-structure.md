@@ -174,7 +174,7 @@ if(!Bag_Add(&s, i)) {
 }
 {% endhighlight %}
 
-Because the Bag is allocated in a contiguous piece of memory it can be realloc'd, memcpy'd or duplicated, no fixups required.
+Because the Bag is allocated in a contiguous piece of memory it can be realloc'd or memcpy'd, no fixups required.
 
 Finally, using a template to parameterize the type of the items array lets us to use it with any type we want.
 
