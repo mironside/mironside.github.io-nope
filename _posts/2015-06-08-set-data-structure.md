@@ -1,5 +1,5 @@
 ---
-title: A Bag Data Structure and Separable Memory Management
+title: Design of a Bag Data Structure
 ---
 
 The bag data structure stores a collection of unordered, non-unique items.  It differs from an array (which stores ordered, non-unique items) and a set (which stores unordered, unique items).  A bag is useful when storing items where the order doesn't matter.  For instance, a graph node could use a bag to store it's child nodes.
@@ -176,7 +176,7 @@ if(!Bag_Add(&s, i)) {
 
 Because the Bag is allocated in a contiguous piece of memory it can be realloc'd or memcpy'd, no fixups required.
 
-Finally, using a template to parameterize the type of the items array lets us to use it with any type we want.
+Finally, using a template to parameterize the type of the items array lets us use it with any type we want.
 
 {% highlight c %}
 template<typename T>
