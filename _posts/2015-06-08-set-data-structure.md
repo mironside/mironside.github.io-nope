@@ -51,7 +51,7 @@ void Bag_Init(Bag *s)
     s->count = 0;
 }
 
-bool Bag_Add(Bag *s, T value)
+bool Bag_Add(Bag *s, int value)
 {
     if (s->count + 1 > s->capacity) {
         return false;
@@ -147,9 +147,9 @@ Bag_Init(&s, items, sizeof(items) / sizeof(items[0]));
 ...
 {% endhighlight %}
 
-Both of implementations have a downside: their memory can't be copied or moved without breaking.  For example, if we memcpy a Bag it still points at it's original items.  If the original Bag's memory is freed the new Bag items is invalidated.  To copy the Bag a to Bag b we'd need to add an extra function that "does the right thing" by copying the values of Bag a into Bag b, allocating a new buffer of items for Bag b and copying that data too.
+Both implementations have a downside: their memory can't be copied or moved without breaking.  For example, if we memcpy a Bag it's items pointer will still point to the original items memory.  If the original Bag's memory is freed the new Bag items is invalidated.  To copy the Bag a to Bag b we'd need to add an extra function to copy the values of Bag a into Bag b then allocate a new buffer of items for Bag b and copying that data too.
 
-A hybrid option is to allocate the Bag and it's items together as a contiguous block of memory outside of the structure and give it to the Bag.
+A hybrid option is to allocate the Bag and it's items as a contiguous block of memory and give it to the Bag.
 
 {% highlight c %}
 struct Bag {
@@ -167,78 +167,16 @@ void Bag_Init(Bag *s, int bytes)
 Bag *s = (Bag *)malloc(1024);
 Bag_Init(&s, bytes);
 ...
+// out of space!
 if(!Bag_Add(&s, i)) {
     s = (Bag *)realloc(s, 2048);
     Bag_Add(&s, i);
 }
 {% endhighlight %}
 
-Because the Bag is allocated in a contiguous piece of memory we can simply realloc it when we've filled the Bag, no fixups required.
+Because the Bag is allocated in a contiguous piece of memory it can be realloc'd, memcpy'd or duplicated, no fixups required.
 
-If we want to get crazier we can hide the Bag struct header so we can index the items directly.
-
-{% highlight c %}
-struct Bag {
-    int capacity;
-    int count;
-    int items[];
-};
-
-int *Bag_Init(Bag *s, int bytes)
-{
-    s->capacity = (bytes - sizeof(Bag)) / sizeof(int);
-    s->count = 0;
-    return s->items;
-}
-
-bool Bag_Add(int *items, int value)
-{
-    Bag *s = (Bag *)items - 1;
-
-    if (s->count + 1 > s->capacity) {
-        return false;
-    }
-
-    s->items[s->count++] = value;
-    return true;
-}
-
-void Bag_Remove(int *items, int index)
-{
-    Bag *s = (Bag *)items - 1;
-
-    if (index >= 0 && index < s->count) {
-        s->items[index] = s->items[--s->count];
-    }
-}
-
-
-byte memory[sizeof(Bag) + sizeof(int) * 10];
-int *s = Bag_Init(memory, bytes);
-
-// add items
-Bag_Add(s, 1);
-Bag_Add(s, 3);
-Bag_Add(s, 5);
-Bag_Add(s, 7);
-for(int i = 0; i < Bag_Count(s); i++)
-    printf("%d ", s[i]);
-// 1 3 5 7
-
-// remove item 1
-Bag_Remove(s, 1);
-for(int i = 0; i < s.count; i++)
-    printf("%d ", s[i]);
-// 1 7 5
-
-// remove item 0
-Bag_Remove(s, 0);
-for(int i = 0; i < Bag_Count(s); i++)
-    printf("%d ", s[i]);
-// 5 7
-{% endhighlight %}
-
-Finally, the Bag would be more useful if we could use it to store items of any type.  Using a simple template allows this.
+Finally, using a template to parameterize the type of the items array lets us to use it with any type we want.
 
 {% highlight c %}
 template<typename T>
@@ -252,11 +190,6 @@ void Bag_Init(Bag<T> *s, int bytes)
 {
     s->capacity = (bytes - sizeof(Bag<T>)) / sizeof(T);
     s->count = 0;
-}
-
-void Bag_Resize(Bag<T> *s, int bytes)
-{
-    s->capacity = (bytes - sizeof(Bag<T>)) / sizeof(T);
 }
 
 bool Bag_Add(Bag<T> *s, T value)
@@ -278,9 +211,10 @@ void Bag_Remove(Bag<T> *s, int index)
 }
 {% endhighlight %}
 
+One last note, I prefer not to obscure a data strucutre by hiding it entirely behind trivial accessor functions.  In this case, I am not creating Bag_Count, Bag_Get, Bag_Set functions because they can be accessed directly on the structure itself.
 
 - Works in fixed memory
 - Does not manage it's own memory
 - Can be relocated, copied or reallocated
-- Removing items is a swap and decrement
-- Note: the remove operation is why item order cannot be garunteed
+- Adding and removing items is a value copy and addition 
+- The remove operation is why item order cannot be garunteed in a Bag
