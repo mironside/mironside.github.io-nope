@@ -2,7 +2,7 @@
 title: A Bag Data Structure and Separable Memory Management
 ---
 
-A bag data structure stores a collection of unordered, non-unique items.  It differs from an array (which stores ordered, non-unique items) and a set (which stores unordered, unique items).  A bag can be used in place of an array when the order doesn't matter.  For instance, a graph node could use a bag to store it's child nodes.
+A bag data structure stores a collection of unordered, non-unique items.  It differs from an array (which stores ordered, non-unique items) and a set (which stores unordered, unique items).  A bag is useful when storing items where the order doesn't matter.  For instance, a graph node could use a bag to store it's child nodes.
 
 Adding items to a bag is constat just like an array: insert the item at the end and increment the count.  However, removing an item is simpler because there is no order constraint: move the last item to the index being removed and decrement the count.  For an array this would require "copying down" the remainder of the array to fill the gap left by the removed item.  Removing an item from an array is therefore linear in the number of items, while removing an item from a bag is constant.
 
