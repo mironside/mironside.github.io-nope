@@ -2,13 +2,13 @@
 title: Considerations of a Bag Data Structure
 ---
 
-I wanted to write a post about the details to consider when implementing a simple data structure in C.
+I wanted to write a post about the details considered when implementing a simple data structure in C.  Here goes...
 
-A Bag data structure stores a collection of unordered, non-unique items.  It differs from an Array (which stores ordered, non-unique items) and a Set (which stores unordered, unique items).  A Bag can be used in place of an Array since the order of a collection is rarely important.  For instance, a graph node's children have no specific order and could be stored in a Bag.
+A Bag data structure stores a collection of unordered, non-unique items.  It differs from an Array (which stores ordered, non-unique items) and a Set (which stores unordered, unique items).  A Bag can be used in place of an Array where the order of the collection not important.  For instance, a graph node's children have no specific order and could be stored in a Bag.
 
-The implementation of a Bag is essentially the same as an Array except the remove operation is constant and can change the item order.  In an Array removing an element requires items to be "copied down" to fill the gap left by the removed item and maintain the item order.  Removing the 0th element in an Array of 1,000,000 items causes 999,999 items be moved.  A Bag, on the other hand, has no order constraint so the 999,999th item can simply be moved into the 0th index.
+A Bag performs much the same as an Array except the remove operation is constant and may change item order.  For an Array removing an element requires "copying down" items to fill the gap to maintain item order.  Removing the 0th element of a 1,000,000 item Array causes 999,999 items be moved.  A Bag, on the other hand, has no order constraint so the 999,999th item is simply be moved into the 0th index.
 
-A simple bag implementation using an array.
+Here is a simple unstrcutured Bag implementation using an array.
 
 {% highlight c %}
 // bag implementation over an array
@@ -37,7 +37,7 @@ for(int i = 0; i < count; i++)
 // 5 7
 {% endhighlight %}
 
-This exemplifies the basic idea, but this should get wrapped up in a struct for convenience...and here is where the complications lie.
+The logic for the Bag is very simple but prone to error when used manuaully.  It is prudent to create a struct and set of functions to simplify using a Bag.
 
 {% highlight c %}
 struct Bag {
@@ -95,7 +95,7 @@ for(int i = 0; i < s.count; i++)
 {% endhighlight %}
 
 
-The size of the bag is fixed at 10, if we add an 11th item it is discarded and lost.  Obviously we will need to be able to specify how many items we want to store.
+The size of the bag is fixed at 10, if we add an 11th item it is discarded and lost.  Obviously we want to be able to specify how many items to store.
 
 One option is have the Bag dynamically allocate the item memory for us.
 
@@ -124,7 +124,7 @@ Bag_Init(&s, 10);
 Bag_Free(&s);
 {% endhighlight %}
 
-This is convenient, but the user has no control over the allocation.  The Bag could take custom alloc/free hooks to Bag_Init.
+This is convenient, but the user has no control over the allocation.  The Bag could take custom alloc/free hooks in Bag_Init.
 
 {% highlight c %}
 struct Bag {
@@ -188,9 +188,9 @@ Bag_Init(&s, 10, myAlloc, myFree, &b);
 Bag_Free(&s);
 {% endhighlight %}
 
-So this is better, right?  The Bag is encapsulated and can manage itself, great!  But it takes a lot of work to tell the Bag where to get memory which makes using the Bag very inconvenient.  This is supposed to be a lightweight data structure!
+So this is better, right?  The Bag is encapsulated and can manage itself, great!  But it takes a lot of work just to tell the Bag where to allocate memory, which makes using the Bag very inconvenient.  This is supposed to be a lightweight data structure!
 
-A better alternative is to _give_ Bag the memory to work in.  This obviates Bag from allocating or freeing memory, giving the user full control.  The Bag can use stack, heap or custom memory trivially.
+A better alternative is to _give_ Bag the memory to work in.  This allows the user to control the memory and the Bag only needs to handle the logic.  The Bag can use stack, heap or custom memory trivially.
 
 {% highlight c %}
 struct Bag {
@@ -217,9 +217,9 @@ Bag_Init(&s, items, 10);
 ...
 {% endhighlight %}
 
-However, the Bag is now two discontiguous chunks of memory: the Bag structure and the items array.  The Bag can't be moved, copied or reallocated in a single operation.  For example, if we memcpy a Bag it's items pointer still points to the original items array.  If the original Bag memory is freed the new Bag items is invalidated.  The Bag needs to be duplicated then the items array needs to be duplicated and reassigned.
+But now the Bag is two discontiguous chunks of memory: the Bag structure and the items array.  Moving, copying or reallocating the Bag is a multistep process: 1) copy the Bag struct  2) alloc a new items array  3) copy the old items into the new array  4) assign the new items to the new Bag's items.
 
-A solution is to allocate the Bag and items as a contiguous block of memory.
+Another option is to allocate the Bag and items as a contiguous block of memory.
 
 {% highlight c %}
 struct Bag {
@@ -247,11 +247,12 @@ if(!Bag_Add(&s, i)) {
     s = (Bag *)realloc(s, 2048);
     Bag_Add(&s, i);
 }
+free(s);
 {% endhighlight %}
 
-Now the Bag can be trivially memcpy'd and realloc'd as a single block of data and will always remain internally consistent.
+Now the Bag can be trivially memcpy'd and realloc'd as a single block of data and is always internally consistent.
 
-Finally, using a template to parameterize the type of the items array lets us use it with any type we want.
+Finally, the Bag isn't very useful if it only works with ints.  A template can be used to parameterize the type of the items array.
 
 {% highlight c %}
 template<typename T>
@@ -286,10 +287,12 @@ void Bag_Remove(Bag<T> *s, int index)
 }
 {% endhighlight %}
 
-One last note, I prefer not to obscure a data strucutre by hiding it entirely behind trivial accessor functions.  In this case, I am not creating Bag_Count, Bag_Get, Bag_Set functions because they can be accessed directly on the structure itself.
+That is the whole Bag implementation: one struct and three simple functions.
 
-- Works in fixed memory
-- Does not manage it's own memory
-- Can be relocated, copied or reallocated
-- Adding and removing items is a value copy and addition 
-- The remove operation is why item order cannot be garunteed in a Bag
+One last note, I prefer not to obscure data strucutres behind accessor functions.  In this case, I am not creating Bag_Count, Bag_Get, Bag_Set accessors because they can be accessed directly on the structure itself.
+
+The Bag 
+-------
+- Does not manage it's own memory, can easily be used with any user memory
+- Can be relocated, copied or reallocated as a single memory block
+- Adding and removing items is one value copy and one addition
