@@ -1,5 +1,5 @@
 ---
-title: Design of a Bag Data Structure
+title: Considerations of a Bag Data Structure
 ---
 
 The bag data structure stores a collection of unordered, non-unique items.  It differs from an array (which stores ordered, non-unique items) and a set (which stores unordered, unique items).  A bag is useful when storing items where the order doesn't matter.  For instance, a graph node could use a bag to store it's child nodes.
