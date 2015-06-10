@@ -263,12 +263,14 @@ struct Bag {
     T items[];
 };
 
+template<typename T>
 void Bag_Init(Bag<T> *s, int bytes)
 {
     s->capacity = (bytes - sizeof(Bag<T>)) / sizeof(T);
     s->count = 0;
 }
 
+template<typename T>
 bool Bag_Add(Bag<T> *s, T value)
 {
     if (s->count + 1 > s->capacity) {
@@ -279,6 +281,7 @@ bool Bag_Add(Bag<T> *s, T value)
     return true;
 }
 
+template<typename T>
 void Bag_Remove(Bag<T> *s, int index)
 {
     if (index >= 0 && index < s->count) {
