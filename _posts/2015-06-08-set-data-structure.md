@@ -108,7 +108,7 @@ struct Bag {
 };
 {% endhighlight %}
 
-This is useful for static sized Bags and can be declared on the stack which is convenient.
+This is useful for static sized Bags and declaring temporary Bag variables on the stack.
 
 The other option is to have the Bag dynamically allocate the item memory for us.
 
