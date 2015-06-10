@@ -95,10 +95,22 @@ for(int i = 0; i < s.count; i++)
 // 5 7
 {% endhighlight %}
 
-
 The size of the bag is fixed at 10, if we add an 11th item it is discarded and lost.  Obviously we want to be able to specify how many items to store.
 
-One option is have the Bag dynamically allocate the item memory for us.
+One option is to statically declare the array size using a template parameter.
+
+{% highlight c %}
+template<int N>
+struct Bag {
+    int capacity;
+    int count;
+    int items[N];
+};
+{% endhighlight %}
+
+This is useful for static sized Bags and can be declared on the stack which is convenient.
+
+The other option is to have the Bag dynamically allocate the item memory for us.
 
 {% highlight c %}
 struct Bag {
