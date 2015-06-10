@@ -1,4 +1,5 @@
 ---
+layout: post
 title: Considerations of a Bag Data Structure
 ---
 
