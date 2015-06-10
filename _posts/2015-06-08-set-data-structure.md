@@ -7,7 +7,7 @@ I wanted to write a post about the details considered when implementing a simple
 
 A Bag data structure stores a collection of unordered, non-unique items.  It differs from an Array (which stores ordered, non-unique items) and a Set (which stores unordered, unique items).  A Bag can be used in place of an Array where the order of the collection is not important.  For instance, a graph node's children have no specific order and could be stored in a Bag.
 
-A Bag performs much the same as an Array except that the remove operation is constant and may change item order.  Removing the 0th element of a 1,000,000 item Array causes 999,999 items be moved.  A Bag, on the other hand, simply removes the 0th item by moving the 999,999th item into the 0th index.
+A Bag performs the same as an Array except that the remove operation is constant and may change item order.  Removing the 0th element of a 1,000,000 item Array causes 999,999 items be moved.  A Bag, on the other hand, simply removes the 0th item by moving the 999,999th item into the 0th index.
 
 Here is a simple unstructured Bag implementation using an array.
 
@@ -220,7 +220,7 @@ Bag_Init(&s, items, 10);
 
 But now the Bag is two discontiguous chunks of memory: the Bag structure and the items array.  Moving, copying or reallocating the Bag is a multistep process: 1) copy the Bag struct  2) alloc a new items array  3) copy the old items into the new array  4) assign the new items to the new Bag's items.
 
-Another option is to allocate the Bag and items as a contiguous block of memory.
+An alternative is to allocate the Bag and items as a contiguous block of memory.
 
 {% highlight c %}
 struct Bag {
