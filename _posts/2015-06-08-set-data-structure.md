@@ -2,17 +2,18 @@
 title: Considerations of a Bag Data Structure
 ---
 
-A Bag data structure stores a collection of unordered, non-unique items.  It differs from an Array (which stores ordered, non-unique items) and a Set (which stores unordered, unique items).  A Bag can often directly replace an Array since it rare that the order of items actually matters.  For instance, a graph node's children have no specific order and could be stored in a Bag.
+I wanted to write a post about the details to consider when implementing a simple data structure in C.
 
-A Bag is basically the same as an Array except the remove operation is constant.  Removing an element from an Array requires items to be "copied down" to fill the gap left by the removed item.  If you remove the 0th element in an array of 1,000,000 items, 999,999 items must be shifted down to maintain the order.  On the other hand, a Bag has no order constraint so the 999,999th item can simply be moved into the 0th index and the count is decremented.
+A Bag data structure stores a collection of unordered, non-unique items.  It differs from an Array (which stores ordered, non-unique items) and a Set (which stores unordered, unique items).  A Bag can be used in place of an Array since the order of a collection is rarely important.  For instance, a graph node's children have no specific order and could be stored in a Bag.
+
+The implementation of a Bag is essentially the same as an Array except the remove operation is constant and can change the item order.  In an Array removing an element requires items to be "copied down" to fill the gap left by the removed item and maintain the item order.  Removing the 0th element in an Array of 1,000,000 items causes 999,999 items be moved.  A Bag, on the other hand, has no order constraint so the 999,999th item can simply be moved into the 0th index.
 
 A simple bag implementation using an array.
 
 {% highlight c %}
 // bag implementation over an array
-int capacity = 10;
 int count = 0;
-int items[capacity];
+int items[10];
 
 // add items
 items[count++] = 1;
@@ -40,20 +41,18 @@ This exemplifies the basic idea, but this should get wrapped up in a struct for 
 
 {% highlight c %}
 struct Bag {
-    int capacity;
     int count;
     int items[10];
 };
 
 void Bag_Init(Bag *s)
 {
-    s->capacity = sizeof(items) / sizeof(items[0]);
     s->count = 0;
 }
 
 bool Bag_Add(Bag *s, int value)
 {
-    if (s->count + 1 > s->capacity) {
+    if (s->count + 1 > sizeof(s->items) / sizeof(s->items[0])) {
         return false;
     }
 
@@ -96,9 +95,9 @@ for(int i = 0; i < s.count; i++)
 {% endhighlight %}
 
 
-Now, let's talk about memory.  The size of the bag is fixed at 10, if we add an 11th item it is discarded and lost.  Obviously we will need to be able to specify how many items we want to store.
+The size of the bag is fixed at 10, if we add an 11th item it is discarded and lost.  Obviously we will need to be able to specify how many items we want to store.
 
-The first option is to have the bag dynamically allocate the item memory for us.
+One option is have the Bag dynamically allocate the item memory for us.
 
 {% highlight c %}
 struct Bag {
@@ -111,7 +110,7 @@ void Bag_Init(Bag *s, int capacity)
 {
     s->capacity = capacity;
     s->count = 0;
-    s->items = malloc(sizeof(int) * capacity);
+    s->items = (int *)malloc(sizeof(int) * capacity);
 }
 
 void Bag_Free(Bag *s)
@@ -125,7 +124,73 @@ Bag_Init(&s, 10);
 Bag_Free(&s);
 {% endhighlight %}
 
-Another option is to _give_ bag the memory to work in.  This obviates Bag from managing or freeing the memory and allows us to allocate the memory however we want, even handing it local stack memory.
+This is convenient, but the user has no control over the allocation.  The Bag could take custom alloc/free hooks to Bag_Init.
+
+{% highlight c %}
+struct Bag {
+    int capacity;
+    int count;
+    int *items;
+    void *(*malloc)(size_t);
+    void (*free)(void *);
+    void *userdata;
+};
+
+
+void Bag_Init(Bag *s, int capacity, void *(*customMalloc)(size_t, void *userdata), void (*customFree)(void *, void *userdata), void *userdata)
+{
+    s->malloc = malloc;
+    s->free = free;
+    if (customMalloc) {
+        s->malloc = customMalloc;
+    }
+    if (customFree) {
+        s->free = customFree;
+    }
+    s->userdata = userdata;
+
+    s->capacity = capacity;
+    s->count = 0;
+    s->items = (int *)s->malloc(sizeof(int) * capacity, s->userdata);
+}
+
+void Bag_Free(Bag *s)
+{
+    s->free(s->items, s->userdata);
+}
+
+
+struct Buffer {
+    void *data;
+    int used;
+    int capacity;
+};
+
+void *myAlloc(size_t size, void *userdata)
+{
+    Buffer *b = (Buffer *)userdata;
+    void *mem = (byte *)b->data + b->used;
+    b->used += size;
+    return mem;
+}
+
+void myFree(void *p)
+{
+    // don't need to free stack memory
+}
+
+byte memory[1024];
+Buffer b = {memory, 0, sizeof(memory)};
+
+Bag s;
+Bag_Init(&s, 10, myAlloc, myFree, &b);
+...
+Bag_Free(&s);
+{% endhighlight %}
+
+So this is better, right?  The Bag is encapsulated and can manage itself, great!  But it takes a lot of work to tell the Bag where to get memory which makes using the Bag very inconvenient.  This is supposed to be a lightweight data structure!
+
+A better alternative is to _give_ Bag the memory to work in.  This obviates Bag from allocating or freeing memory, giving the user full control.  The Bag can use stack, heap or custom memory trivially.
 
 {% highlight c %}
 struct Bag {
@@ -143,13 +208,18 @@ void Bag_Init(Bag *s, int *items, int capacity)
 
 int items[10];
 Bag s;
-Bag_Init(&s, items, sizeof(items) / sizeof(items[0]));
+Bag_Init(&s, items, 10);
+...
+
+int *items = CustomAlloc(sizeof(int) * 10);
+Bag s;
+Bag_Init(&s, items, 10);
 ...
 {% endhighlight %}
 
-Both implementations have a downside: their memory can't be copied or moved without breaking.  For example, if we memcpy a Bag it's items pointer will still point to the original items memory.  If the original Bag's memory is freed the new Bag items is invalidated.  To copy the Bag a to Bag b we'd need to add an extra function to copy the values of Bag a into Bag b then allocate a new buffer of items for Bag b and copying that data too.
+However, the Bag is now two discontiguous chunks of memory: the Bag structure and the items array.  The Bag can't be moved, copied or reallocated in a single operation.  For example, if we memcpy a Bag it's items pointer still points to the original items array.  If the original Bag memory is freed the new Bag items is invalidated.  The Bag needs to be duplicated then the items array needs to be duplicated and reassigned.
 
-A hybrid option is to allocate the Bag and it's items as a contiguous block of memory and give it to the Bag.
+A solution is to allocate the Bag and items as a contiguous block of memory.
 
 {% highlight c %}
 struct Bag {
@@ -164,8 +234,13 @@ void Bag_Init(Bag *s, int bytes)
     s->count = 0;
 }
 
+byte memory[1024];
+Bag *s = (Bag *)memory;
+Bag_Init(&s, 1024);
+...
+
 Bag *s = (Bag *)malloc(1024);
-Bag_Init(&s, bytes);
+Bag_Init(&s, 1024);
 ...
 // out of space!
 if(!Bag_Add(&s, i)) {
@@ -174,7 +249,7 @@ if(!Bag_Add(&s, i)) {
 }
 {% endhighlight %}
 
-Because the Bag is allocated in a contiguous piece of memory it can be realloc'd or memcpy'd, no fixups required.
+Now the Bag can be trivially memcpy'd and realloc'd as a single block of data and will always remain internally consistent.
 
 Finally, using a template to parameterize the type of the items array lets us use it with any type we want.
 
