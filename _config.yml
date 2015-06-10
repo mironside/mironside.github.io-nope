@@ -3,7 +3,7 @@
 # Use of `relative_permalinks` ensures post links from the index work properly.
 permalink:           pretty
 relative_permalinks: true
-highlighter:         pygments
+#highlighter:         pygments
 
 # Setup
 title:               mironside
@@ -18,4 +18,4 @@ sass:
   sass_dir:          _sass
   style:            :compressed
 
-excerpt_separator: N/A-------N/A... Workaround for https://github.com/mojombo/jekyll/issues/1401
+#excerpt_separator: N/A-------N/A... Workaround for https://github.com/mojombo/jekyll/issues/1401
