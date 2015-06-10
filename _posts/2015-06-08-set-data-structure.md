@@ -290,7 +290,7 @@ void Bag_Remove(Bag<T> *s, int index)
 
 That is the whole Bag implementation: one struct and three simple functions.
 
-One last note, I prefer not to obscure data strucutres behind accessor functions.  In this case, I am not creating Bag_Count, Bag_Get, Bag_Set accessors because they can be accessed directly on the structure itself.
+One last note, I prefer not to obscure data structures behind accessor functions.  In this case, I am not creating Bag_Count, Bag_Get, Bag_Set accessors because they can be accessed directly on the structure itself.
 
 The Bag 
 -------
