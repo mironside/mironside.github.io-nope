@@ -5,11 +5,11 @@ title: Considerations of a Bag Data Structure
 
 I wanted to write a post about the details considered when implementing a simple data structure in C.  Here goes...
 
-A Bag data structure stores a collection of unordered, non-unique items.  It differs from an Array (which stores ordered, non-unique items) and a Set (which stores unordered, unique items).  A Bag can be used in place of an Array where the order of the collection not important.  For instance, a graph node's children have no specific order and could be stored in a Bag.
+A Bag data structure stores a collection of unordered, non-unique items.  It differs from an Array (which stores ordered, non-unique items) and a Set (which stores unordered, unique items).  A Bag can be used in place of an Array where the order of the collection is not important.  For instance, a graph node's children have no specific order and could be stored in a Bag.
 
-A Bag performs much the same as an Array except the remove operation is constant and may change item order.  For an Array removing an element requires "copying down" items to fill the gap to maintain item order.  Removing the 0th element of a 1,000,000 item Array causes 999,999 items be moved.  A Bag, on the other hand, has no order constraint so the 999,999th item is simply be moved into the 0th index.
+A Bag performs much the same as an Array except that the remove operation is constant and may change item order.  Removing the 0th element of a 1,000,000 item Array causes 999,999 items be moved.  A Bag, on the other hand, simply removes the 0th item by moving the 999,999th item into the 0th index.
 
-Here is a simple unstrcutured Bag implementation using an array.
+Here is a simple unstructured Bag implementation using an array.
 
 {% highlight c %}
 // bag implementation over an array
