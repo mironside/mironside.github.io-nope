@@ -2,9 +2,9 @@
 title: Considerations of a Bag Data Structure
 ---
 
-The bag data structure stores a collection of unordered, non-unique items.  It differs from an array (which stores ordered, non-unique items) and a set (which stores unordered, unique items).  A bag is useful when storing items where the order doesn't matter.  For instance, a graph node could use a bag to store it's child nodes.
+A Bag data structure stores a collection of unordered, non-unique items.  It differs from an Array (which stores ordered, non-unique items) and a Set (which stores unordered, unique items).  A Bag can often directly replace an Array since it rare that the order of items actually matters.  For instance, a graph node's children have no specific order and could be stored in a Bag.
 
-Adding items to a bag is constat just like an array: insert the item at the end and increment the count.  To remove an element from an array memory must be "copied down" to fill the gap left by the removed item.  If you remove the 0th element in an array of 1,000,000 items, 999,999 items must be shifted down to maintain the order.  In a Bag, because there is no order constraint, the 999,999th item is simply moved into the 0th index and the count is decremented.  Therefore removing an item from an array is linear in the number of items, while removing an item from a bag is constant.
+A Bag is basically the same as an Array except the remove operation is constant.  Removing an element from an Array requires items to be "copied down" to fill the gap left by the removed item.  If you remove the 0th element in an array of 1,000,000 items, 999,999 items must be shifted down to maintain the order.  On the other hand, a Bag has no order constraint so the 999,999th item can simply be moved into the 0th index and the count is decremented.
 
 A simple bag implementation using an array.
 
