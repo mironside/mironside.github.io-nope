@@ -3,7 +3,7 @@ layout: post
 title: Considerations of a Bag Data Structure
 ---
 
-I wanted to write a post about the details considered when implementing a simple data structure in C.  Here goes...
+I wanted to write a post about the details considered when implementing a simple data structure in the C style (ie. C with a tiny bit of C++).  Here goes...
 
 A Bag data structure stores a collection of unordered, non-unique items.  It differs from an Array (which stores ordered, non-unique items) and a Set (which stores unordered, unique items).  A Bag can be used in place of an Array where the order of the collection is not important.  For instance, a graph node's children have no specific order and could be stored in a Bag.
 
