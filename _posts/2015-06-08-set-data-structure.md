@@ -315,4 +315,4 @@ The Bag
 
 Niklas Frykholm uses this style of linear allocation and calculating pointer offsets in his nflibs string table implementation.
 
-https://github.com/niklasfrykholm/nflibs/blob/master/nf_string_table.c
+<https://github.com/niklasfrykholm/nflibs/blob/master/nf_string_table.c>
