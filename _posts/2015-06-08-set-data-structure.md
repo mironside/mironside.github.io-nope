@@ -108,7 +108,7 @@ struct Bag {
 };
 {% endhighlight %}
 
-This is useful for static sized Bags and declaring temporary Bag variables on the stack.
+This is useful for static sized Bags and declaring temporary Bag variables on the stack.  A downside is that the number of items is part of the type, it has to be passed as that specific type.  A Bag<10> cannot be used in place of a Bag<20>, and neither can be passed to a function.  There are ways around this using templates but that becomes more complicated than I'd like.
 
 The other option is to have the Bag dynamically allocate the item memory for us.
 
@@ -203,7 +203,7 @@ Bag_Free(&s);
 
 So this is better, right?  The Bag is encapsulated and can manage itself, great!  But it takes a lot of work just to tell the Bag where to allocate memory, which makes using the Bag very inconvenient.  This is supposed to be a lightweight data structure!
 
-A better alternative is to _give_ Bag the memory to work in.  This allows the user to control the memory and the Bag only needs to handle the logic.  The Bag can use stack, heap or custom memory trivially.
+An alternative is to _give_ Bag the items to work on.  This allows the user to control the items allocation and the Bag only handles the logic.  The Bag can use stack, heap or custom memory trivially.
 
 {% highlight c %}
 struct Bag {
@@ -230,9 +230,9 @@ Bag_Init(&s, items, 10);
 ...
 {% endhighlight %}
 
-But now the Bag is two discontiguous chunks of memory: the Bag structure and the items array.  Moving, copying or reallocating the Bag is a multistep process: 1) copy the Bag struct  2) alloc a new items array  3) copy the old items into the new array  4) assign the new items to the new Bag's items.
+In this example, the Bag acts as an overlay on the items array.  But now the Bag is two discontiguous chunks of memory: the Bag structure and the items array.  Moving, copying or reallocating the Bag is a multistep process: 1) copy the Bag struct  2) alloc a new items array  3) copy the old items into the new array  4) assign the new items to the new Bag's items.
 
-An alternative is to allocate the Bag and items as a contiguous block of memory.
+We could allocate the Bag and items as a contiguous block of memory.
 
 {% highlight c %}
 struct Bag {
