@@ -312,3 +312,7 @@ The Bag
 - Does not manage it's own memory, can easily be used with any user memory
 - Can be relocated, copied or reallocated as a single memory block
 - Adding and removing items is one value copy and one addition
+
+Niklas Frykholm uses this style of linear allocation and calculating pointer offsets in his nflibs string table implementation.
+
+https://github.com/niklasfrykholm/nflibs/blob/master/nf_string_table.c
