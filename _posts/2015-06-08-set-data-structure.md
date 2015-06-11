@@ -263,7 +263,7 @@ if(!Bag_Add(&s, i)) {
 free(s);
 {% endhighlight %}
 
-Now the Bag can be trivially memcpy'd and realloc'd as a single block of data and is always internally consistent.
+Now the Bag can be trivially memcpy'd and realloc'd as a single block of data and is always internally consistent.  But there is also a downside to this approach, too.  Realloc'ing the Bag can return a different pointer invalidating other references to the Bag.  With an internal items pointer realloc'ing the items inside the Bag won't break other references to the Bag.
 
 Finally, the Bag isn't very useful if it only works with ints.  A template can be used to parameterize the type of the items array.
 
