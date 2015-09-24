@@ -6,14 +6,14 @@ title: C API Internal Access Protection
 I like C style apis, they're simple and clean.  When I create an api I use an underscored prefix to group functions in the same api.
 
 ### C Time API
-{% highlight c %}
+{% highlight cpp %}
 uint64_t Time_GetTicks();
 uint64_t Time_GetTickFrequency();
 {% endhighlight %}
 
 In the source file I group api data in a static anonymous struct instance named with the same prefix.
 
-{% highlight c %}
+{% highlight cpp %}
 static struct {
 	LARGE_INTEGER timeStart;
 	LARGE_INTEGER timeFrequency;
@@ -24,7 +24,7 @@ Including the underscore in the struct name makes it trivial to rename the entir
 
 Api functions use this struct explicitly.
 
-{% highlight c %}
+{% highlight cpp %}
 static void Time_Initialize()
 {
 	QueryPerformanceCounter(&Time_.timeStart);
@@ -51,7 +51,7 @@ The adjustment is simple: 1) make members private 2) make api functions friends
 I prefer to use a class instead of a struct so members default to private without the noise of an extra private: statement.  Friend declarations simply follow the data declarations.  This has a nice effect of grouping everything in the api but with the downside of needing to redeclare the functions an extra time as friends.
 
 ### Access Protection
-{% highlight c %}
+{% highlight cpp %}
 static class Time_ {
 	LARGE_INTEGER timeStart;
 	LARGE_INTEGER timeFrequency;
