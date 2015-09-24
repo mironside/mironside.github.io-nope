@@ -11,18 +11,24 @@ uint64_t Time_GetTicks();
 uint64_t Time_GetTickFrequency();
 {% endhighlight %}
 
-In the source file I group api data in a static anonymous struct instance named with the same prefix.
+In the source file I group api data in a static struct instance named with the same prefix.
 
 {% highlight c %}
-static struct {
+static struct Time_ {
 	LARGE_INTEGER timeStart;
 	LARGE_INTEGER timeFrequency;
 } Time_;
 {% endhighlight %}
 
-Including the underscore in the struct name makes it trivial to rename the entire api by find and replacing the underscored prefix 'Time\_'.  It's also nice for debugging and differentiates the api struct from any user facing type that might be returned by the api.  The File_ api might want to return a File pointer for example.
+The struct type is declared with the same name as the instance so statics and type declarations can be accessed through the same Time\_:: namespace.  In fact, any use of the Time api starts with the same prefix:
 
-Api functions use the struct explicitly.
+ * Time\_::type
+ * Time\_.member
+ * Time_Function()
+
+This allows trivial api renaming with a simple find and replace of "Time\_".  The underscored name also avoids conflicting with any user facing typename that might be returned by the api.  A File\_ api might want to return a File pointer for example.
+
+Inside the api functions the struct is always used explicitly.
 
 {% highlight c %}
 static void Time_Initialize()
@@ -48,7 +54,7 @@ This organization is clean and simple and the data is hidden inside the translat
 
 The adjustment is simple: 1) make members private 2) make api functions friends
 
-I prefer to use a class instead of a struct so members default to private without the noise of an extra private: statement.  Friend declarations simply follow the data declarations.  This has a nice effect of grouping everything in the api but with the downside of needing to redeclare the functions an extra time as friends.
+I prefer to use a class instead of a struct so members default to private without the noise of an extra private: statement.  Friend declarations simply follow the data declarations in the class.  This has a nice effect of grouping everything in the api but with the downside of needing to redeclare the functions an extra time as friends.
 
 ### Access Protection
 {% highlight c %}
