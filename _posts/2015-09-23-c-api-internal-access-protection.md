@@ -13,6 +13,7 @@ uint64_t Time_GetTickFrequency();
 In the source file I group api data in a static anonymous struct instance named with the same prefix.
 
 <div class="highlight"><pre><code class="language-c" data-lang="c">static struct {
+static struct {
 	LARGE_INTEGER timeStart;
 	LARGE_INTEGER timeFrequency;
 } Time_;
