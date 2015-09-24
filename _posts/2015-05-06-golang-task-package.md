@@ -5,7 +5,7 @@ title: Build System in Go
 
 I wrote a golang package called tiny/task which implements the ideas of the task based build system described in a [previous post]({% post_url 2015-05-01-notes-on-task-based-build-system %}).  Here is the tiny/task godoc:
 
-{% highlight golang %}
+{% highlight go %}
 type Line struct {
     Name string
     Data interface{}
@@ -25,7 +25,7 @@ With tiny/task it is very easy to define your own tasks, schedule and execute th
 
 Here is a simple program that declares a compile task and schedules a task to compile main.c to main.obj.
 
-{% highlight golang %}
+{% highlight go %}
 package main
 
 import (
