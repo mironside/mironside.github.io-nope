@@ -1,3 +1,8 @@
+---
+layout: post
+title: C API Internal Access Protection
+---
+
 I like C style apis, they're simple and clean.  When I create an api I use an underscored prefix to group functions in the same api.
 
 ### C Time API
