@@ -22,7 +22,7 @@ static struct {
 
 Including the underscore in the struct name makes it trivial to rename the entire api by find and replacing the underscored prefix 'Time\_'.  It's also nice for debugging and differentiates the api struct from any user facing type that might be returned by the api.  The File_ api might want to return a File pointer for example.
 
-Api functions use this struct explicitly.
+Api functions use the struct explicitly.
 
 {% highlight c %}
 static void Time_Initialize()
