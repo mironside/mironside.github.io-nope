@@ -32,13 +32,13 @@ Let's say we want to use this task system to build a program.  We want to:
 
 First is the project Task Line:
 
-{% highlight %}
+{% highlight c %}
 [project, {ProjectFile: myprogram.project}]
 {% endhighlight %}
 
 This declares the project Task and it's data.  The Task system calls Parse on the data object producing a list of input and output files.
 
-{% highlight %}
+{% highlight c %}
 project
     Input: myprogram.project
     Output:
@@ -48,7 +48,7 @@ The project Parse did not produce any Output files so it is considered a MetaTas
 
 The project Task Executes reading myprogram.project and finds that the target is game.exe and there are three source files: main.c, game.c and input.c.  It creates three compile Task Lines and one link Task Line which are added to the Task queue.
 
-{% highlight %}
+{% highlight c %}
 [compile, {SourceFile: main.c, ObjectFile: main.obj}]
 [compile, {SourceFile: game.c, ObjectFile: game.obj}]
 [compile, {SourceFile: input.c, ObjectFile: input.obj}]
@@ -57,7 +57,7 @@ The project Task Executes reading myprogram.project and finds that the target is
 
 These new Tasks are Parsed to determine the Inputs and Outputs from their Task data object.
 
-{% highlight %}
+{% highlight c %}
 compile
     Inputs: main.c
     Outputs: main.obj
@@ -79,7 +79,7 @@ The link Task uses the files main.obj, game.obj and input.obj as Inputs which ar
 
 Using main.c as the example, FindDependencies runs and discovers that main.c #includes main.h and game.h (which #includes input.h), these are added as File dependencies.
 
-{% highlight %}
+{% highlight c %}
 compile
     Inputs: main.c -> [main.h [game.h -> input.h]]
     Outputs: main.obj
