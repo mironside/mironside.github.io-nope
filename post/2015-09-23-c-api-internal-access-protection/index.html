@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://mironside.com//stylesheets/shiori.css">
+    <link href='//fonts.googleapis.com/css?family=Montserrat:700,400' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Merriweather:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="http://mironside.com//favicon.ico">
+    <title>C API Internal Access Protection | mironside</title>
+    
+    
+
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <div class="navbar-toggle-wrapper visible-xs">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".js-navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <a href="http://mironside.com/" class="navbar-brand">mironside</a>
+        </div>
+        <div class="collapse navbar-collapse js-navbar-collapse">
+          <ul class="navbar-nav nav">
+            <li><a href="http://mironside.com//post">Archive</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li class="hidden-xs"><iframe src="http://ghbtns.com/github-btn.html?user=chibicode&repo=hugo-theme-shiori&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30" style="margin-top: 14px;"></iframe>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+
+<div class="row">
+  <div class="col-sm-8">
+    <div class="post-header">
+      <h1 class="post-title-main">C API Internal Access Protection</h1>
+      <p class="text-muted">Sep 23, 2015</p>
+
+    </div>
+    <div class="post-content">
+      
+
+<p>I like C style apis, they&rsquo;re simple and clean.  When I create an api I use an underscored prefix to group functions in the same api.</p>
+
+<h3 id="c-time-api:d40493909dc16965ed33df035bd64be1">C Time API</h3>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #2b91af">uint64_t</span> Time_GetTicks();
+<span style="color: #2b91af">uint64_t</span> Time_GetTickFrequency();
+</pre></div>
+
+
+<p>In the source file I group api data in a static struct instance named with the same prefix.</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">static</span> <span style="color: #0000ff">struct</span> Time_ {
+	LARGE_INTEGER timeStart;
+	LARGE_INTEGER timeFrequency;
+} Time_;
+</pre></div>
+
+
+<p>The struct type is declared with the same name as the instance so statics and type declarations can be accessed through the same Time_:: namespace.  In fact, any use of the Time api starts with the same prefix:</p>
+
+<ul>
+<li>Time_::type</li>
+<li>Time_.member</li>
+<li>Time_Function()</li>
+</ul>
+
+<p>This allows trivial api renaming with a simple find and replace of &ldquo;Time_&rdquo;.  The underscored name also avoids conflicting with any user facing typename that might be returned by the api.  A File_ api might want to return a File pointer for example.</p>
+
+<p>Inside the api functions the struct is always used explicitly.</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">static</span> <span style="color: #2b91af">void</span> Time_Initialize()
+{
+	QueryPerformanceCounter(&amp;Time_.timeStart);
+	QueryPerformanceFrequency(&amp;Time_.timeFrequency);
+}
+
+<span style="color: #2b91af">uint64_t</span> Time_GetTicks()
+{
+	LARGE_INTEGER now;
+	QueryPerformanceCounter(&amp;now);
+	<span style="color: #0000ff">return</span> now.QuadPart - Time_.timeStart.QuadPart;
+}
+
+<span style="color: #2b91af">uint64_t</span> Time_GetTickFrequency()
+{
+	<span style="color: #0000ff">return</span> Time_.timeFrequency.QuadPart;
+}
+</pre></div>
+
+
+<p>This organization is clean and simple and the data is hidden inside the translation unit.  Pretty good, but it would be nice to protect the api data from being used outside the api functions inside the same translation unit.  This is especially handy for unity builds where everything is in the same translation unit.</p>
+
+<p>The adjustment is simple: 1) make members private 2) make api functions friends</p>
+
+<p>I prefer to use a class instead of a struct so members default to private without the noise of an extra private: statement.  Friend declarations simply follow the data declarations in the class.  This has a nice effect of grouping everything in the api but with the downside of needing to redeclare the functions an extra time as friends.</p>
+
+<h3 id="access-protection:d40493909dc16965ed33df035bd64be1">Access Protection</h3>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">static</span> class Time_ {
+	LARGE_INTEGER timeStart;
+	LARGE_INTEGER timeFrequency;
+
+	friend <span style="color: #0000ff">static</span> <span style="color: #2b91af">void</span> Time_Initialize();
+	friend <span style="color: #2b91af">uint64_t</span> Time_GetTicks();
+	friend <span style="color: #2b91af">uint64_t</span> Time_GetTickFrequency();
+} Time_;
+
+<span style="color: #0000ff">static</span> <span style="color: #2b91af">void</span> Time_Initialize()
+{
+	QueryPerformanceCounter(&amp;Time_.timeStart);
+	QueryPerformanceFrequency(&amp;Time_.timeFrequency);
+}
+
+<span style="color: #2b91af">uint64_t</span> Time_GetTicks()
+{
+	LARGE_INTEGER now;
+	QueryPerformanceCounter(&amp;now);
+	<span style="color: #0000ff">return</span> now.QuadPart - Time_.timeStart.QuadPart;
+}
+
+<span style="color: #2b91af">uint64_t</span> Time_GetTickFrequency()
+{
+	<span style="color: #0000ff">return</span> Time_.timeFrequency.QuadPart;
+}
+</pre></div>
+</p>
+
+<p>The best part is that this has no effect on the organization of the rest of the C code.  You can add or remove data protection simply by changing the struct declaration.</p>
+
+    </div>
+    <div class="post-footer">
+      <a href="http://mironside.com//post" class="btn btn-primary btn-block btn-lg">View All 5 Articles →</a>
+
+    </div>
+    
+  </div>
+  <div class="col-sm-4">
+    <h3>
+  Author
+</h3>
+
+<p>
+  <div class="media">
+    <img src="http://www.gravatar.com/avatar/?s=100" alt="" class="pull-left">
+    <div class="media-body">
+      <h4 class="media-heading"></h4>
+    </div>
+  </div>
+</p>
+
+<p><a href="https://twitter.com/" class="twitter-follow-button" data-show-screen-name="false" data-show-count="true" data-dnt="true" data-size="large">Follow @</a></p>
+
+  </div>
+</div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy; 2015.
+Built with <a href="http://gohugo.io/">Hugo</a> and
+<a href="https://github.com/chibicode/hugo-theme-shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    <script src="http://mironside.com//javascripts/shiori.js"></script>
+    
+
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+  </body>
+</html>
+

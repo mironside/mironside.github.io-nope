@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://mironside.com//stylesheets/shiori.css">
+    <link href='//fonts.googleapis.com/css?family=Montserrat:700,400' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Merriweather:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="http://mironside.com//favicon.ico">
+    <title>Notes on a Task Based Build System | mironside</title>
+    
+    
+
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <div class="navbar-toggle-wrapper visible-xs">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".js-navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <a href="http://mironside.com/" class="navbar-brand">mironside</a>
+        </div>
+        <div class="collapse navbar-collapse js-navbar-collapse">
+          <ul class="navbar-nav nav">
+            <li><a href="http://mironside.com//post">Archive</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li class="hidden-xs"><iframe src="http://ghbtns.com/github-btn.html?user=chibicode&repo=hugo-theme-shiori&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30" style="margin-top: 14px;"></iframe>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+
+<div class="row">
+  <div class="col-sm-8">
+    <div class="post-header">
+      <h1 class="post-title-main">Notes on a Task Based Build System</h1>
+      <p class="text-muted">May 1, 2015</p>
+
+    </div>
+    <div class="post-content">
+      
+
+<ul>
+<li><p><strong>Line</strong> - Tasks are defined by Lines which declare the Task name and Task-specific data.  Information can only be passed between Tasks through Lines.</p></li>
+
+<li><p><strong>File</strong> - Represents a physical file on disk that may be an Input or an Output of a Task.  A File can have a list of File Dependencies, forming a tree.</p>
+
+<ul>
+<li><strong>FindDependencies</strong> - A File may have an associated function to find it&rsquo;s dependencies.  For instance, a .c File would have a function to find Files it #includes.</li>
+</ul></li>
+
+<li><p><strong>Task</strong> - A Task consists of it&rsquo;s opaque data object and Parse and Execute functions which perform the actual logic of the Task.</p>
+
+<ul>
+<li><p><strong>Parse</strong> - Parses the task data object and returns the list of Input and Output Files.  Parse cannot read Input Files, it only translates the task-specific data into general inputs and outputs used for scheduling.</p></li>
+
+<li><p><strong>HasChanges</strong> - Determines if any Input, Input Dependencies or Output Files have changed.  If there are no changes the Task does not need to Execute.</p></li>
+
+<li><p><strong>Execute</strong> - Processes the task using the Task data object: reads Input Files and creates Output Files.</p></li>
+</ul></li>
+
+<li><p><strong>MetaTask</strong> - Have the same capabilities as a Task but can create new Task Lines that get added to Scheduler when Executed.  Because they create Tasks MetaTasks always Execute.</p></li>
+</ul>
+
+<p>Task dependencies are implicit based on Input and Output Files.  If Task B uses the File &ldquo;main.obj&rdquo; as Input and Task A outputs &ldquo;main.obj&rdquo; then Task B depends on Task A.  In other words, Task A must complete before Task B can Execute.  The Task Scheduler will only Execute Tasks that have no dependencies or whose dependencies have completed.  When a Task completes the Scheduler re-evaluates to see if any new Tasks can Execute.  This repeats until all Tasks are complete.</p>
+
+<h2 id="example:ab3a8221151751c3ca2627c5aea0bb94">Example</h2>
+
+<p>Let&rsquo;s say we want to use this task system to build a program.  We want to:</p>
+
+<ol>
+<li>Read a project file to find C source files and target</li>
+<li>Compile all the C source files to obj files</li>
+<li>Link the obj files into an executable</li>
+</ol>
+
+<p>First is the project Task Line:</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%">[project, {ProjectFile: myprogram.project}]
+</pre></div>
+
+
+<p>This declares the project Task and it&rsquo;s data.  The Task system calls Parse on the data object producing a list of input and output files.</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%">project
+    Input: myprogram.project
+    Output:
+</pre></div>
+
+
+<p>The project Parse did not produce any Output files so it is considered a MetaTask and must Execute.</p>
+
+<p>The project Task Executes reading myprogram.project and finds that the target is game.exe and there are three source files: main.c, game.c and input.c.  It creates three compile Task Lines and one link Task Line which are added to the Task queue.</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%">[compile, {SourceFile: main.c, ObjectFile: main.obj}]
+[compile, {SourceFile: game.c, ObjectFile: game.obj}]
+[compile, {SourceFile: input.c, ObjectFile: input.obj}]
+[link, {ObjectFiles: [main.obj, game.obj, input.obj], Executable: game.exe}]
+</pre></div>
+
+
+<p>These new Tasks are Parsed to determine the Inputs and Outputs from their Task data object.</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%">compile
+    Inputs: main.c
+    Outputs: main.obj
+
+compile
+    Inputs: game.c
+    Outputs: game.obj
+
+compile
+    Inputs: input.c
+    Outputs: input.obj
+
+link
+    Inputs: [main.obj, game.obj, input.obj]
+    Outputs: game.exe
+</pre></div>
+
+
+<p>The link Task uses the files main.obj, game.obj and input.obj as Inputs which are also the Outputs of the compile Tasks.  Therefore the link Task is implicitly dependent on all three compile Tasks and cannot be run until they complete.  The three compile Tasks do not depend on any other Tasks so they are each Executed.  Since they don&rsquo;t depend on each other they could even Execute in parallel.</p>
+
+<p>Using main.c as the example, FindDependencies runs and discovers that main.c #includes main.h and game.h (which #includes input.h), these are added as File dependencies.</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%">compile
+    Inputs: main.c -&gt; [main.h [game.h -&gt; input.h]]
+    Outputs: main.obj
+</pre></div>
+</p>
+
+<p>The Task is checked for changes.  Inputs main.c main.h game.h and Output main.obj are all unchanged since the last build.  However, the dependency input.h has changed so the Task is Executed compiling main.c into main.obj.</p>
+
+<p>All three compile Tasks complete and the link Task now has no dependencies.  The Output game.exe matches the previous build but main.obj has changed since it was just re-compiled.  The link Task Executes linking the three object file Inputs into the game.exe Output file.</p>
+
+<p>With no more tasks in the queue, the build is complete.</p>
+
+    </div>
+    <div class="post-footer">
+      <a href="http://mironside.com//post" class="btn btn-primary btn-block btn-lg">View All 5 Articles →</a>
+
+    </div>
+    
+  </div>
+  <div class="col-sm-4">
+    <h3>
+  Author
+</h3>
+
+<p>
+  <div class="media">
+    <img src="http://www.gravatar.com/avatar/?s=100" alt="" class="pull-left">
+    <div class="media-body">
+      <h4 class="media-heading"></h4>
+    </div>
+  </div>
+</p>
+
+<p><a href="https://twitter.com/" class="twitter-follow-button" data-show-screen-name="false" data-show-count="true" data-dnt="true" data-size="large">Follow @</a></p>
+
+  </div>
+</div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy; 2015.
+Built with <a href="http://gohugo.io/">Hugo</a> and
+<a href="https://github.com/chibicode/hugo-theme-shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    <script src="http://mironside.com//javascripts/shiori.js"></script>
+    
+
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+  </body>
+</html>
+

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://mironside.com//stylesheets/shiori.css">
+    <link href='//fonts.googleapis.com/css?family=Montserrat:700,400' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Merriweather:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="http://mironside.com//favicon.ico">
+    <title>Considerations of a Bag Data Structure | mironside</title>
+    
+    
+
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <div class="navbar-toggle-wrapper visible-xs">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".js-navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <a href="http://mironside.com/" class="navbar-brand">mironside</a>
+        </div>
+        <div class="collapse navbar-collapse js-navbar-collapse">
+          <ul class="navbar-nav nav">
+            <li><a href="http://mironside.com//post">Archive</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li class="hidden-xs"><iframe src="http://ghbtns.com/github-btn.html?user=chibicode&repo=hugo-theme-shiori&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30" style="margin-top: 14px;"></iframe>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+
+<div class="row">
+  <div class="col-sm-8">
+    <div class="post-header">
+      <h1 class="post-title-main">Considerations of a Bag Data Structure</h1>
+      <p class="text-muted">Jun 8, 2015</p>
+
+    </div>
+    <div class="post-content">
+      
+
+<p>I wanted to write a post about the details considered when implementing a simple data structure in the C style (ie. C with a tiny bit of C++).  Here goes&hellip;</p>
+
+<p>A Bag data structure stores a collection of unordered, non-unique items.  It differs from an Array (which stores ordered, non-unique items) and a Set (which stores unordered, unique items).  A Bag can be used in place of an Array where the order of the collection is not important.  For instance, a graph node&rsquo;s children have no specific order and could be stored in a Bag.</p>
+
+<p>A Bag performs the same as an Array except that the remove operation is constant and may change item order.  Removing the 0th element of a 1,000,000 item Array causes 999,999 items be moved.  A Bag, on the other hand, simply removes the 0th item by moving the 999,999th item into the 0th index.</p>
+
+<p>Here is a simple unstructured Bag implementation using an array.</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #008000">// bag implementation over an array</span>
+<span style="color: #2b91af">int</span> count = 0;
+<span style="color: #2b91af">int</span> items[10];
+
+<span style="color: #008000">// add items</span>
+items[count++] = 1;
+items[count++] = 3;
+items[count++] = 5;
+items[count++] = 7;
+<span style="color: #0000ff">for</span>(<span style="color: #2b91af">int</span> i = 0; i &lt; count; i++)
+    printf(<span style="color: #a31515">&quot;%d &quot;</span>, items[i]);
+<span style="color: #008000">// 1 3 5 7</span>
+
+<span style="color: #008000">// remove item 1</span>
+items[1] = items[--count];
+<span style="color: #0000ff">for</span>(<span style="color: #2b91af">int</span> i = 0; i &lt; count; i++)
+    printf(<span style="color: #a31515">&quot;%d &quot;</span>, items[i]);
+<span style="color: #008000">// 1 7 5</span>
+
+<span style="color: #008000">// remove item 0</span>
+items[0] = items[--count];
+<span style="color: #0000ff">for</span>(<span style="color: #2b91af">int</span> i = 0; i &lt; count; i++)
+    printf(<span style="color: #a31515">&quot;%d &quot;</span>, items[i]);
+<span style="color: #008000">// 5 7</span>
+</pre></div>
+
+
+<p>The logic for the Bag is very simple but prone to error when used manuaully.  It is prudent to create a struct and set of functions to simplify using a Bag.</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">struct</span> Bag {
+    <span style="color: #2b91af">int</span> count;
+    <span style="color: #2b91af">int</span> items[10];
+};
+
+<span style="color: #2b91af">void</span> Bag_Init(Bag *s)
+{
+    s-&gt;count = 0;
+}
+
+<span style="color: #2b91af">bool</span> Bag_Add(Bag *s, <span style="color: #2b91af">int</span> value)
+{
+    <span style="color: #0000ff">if</span> (s-&gt;count + 1 &gt; <span style="color: #0000ff">sizeof</span>(s-&gt;items) / <span style="color: #0000ff">sizeof</span>(s-&gt;items[0])) {
+        <span style="color: #0000ff">return</span> false;
+    }
+
+    s-&gt;items[s-&gt;count++] = value;
+    <span style="color: #0000ff">return</span> true;
+}
+
+<span style="color: #2b91af">void</span> Bag_Remove(Bag *s, <span style="color: #2b91af">int</span> index)
+{
+    <span style="color: #0000ff">if</span> (index &gt;= 0 &amp;&amp; index &lt; s-&gt;count) {
+        s-&gt;items[index] = s-&gt;items[--s-&gt;count];
+    }
+}
+
+
+Bag s;
+
+Bag_Init(&amp;s);
+
+<span style="color: #008000">// add items</span>
+Bag_Add(&amp;s, 1);
+Bag_Add(&amp;s, 3);
+Bag_Add(&amp;s, 5);
+Bag_Add(&amp;s, 7);
+<span style="color: #0000ff">for</span>(<span style="color: #2b91af">int</span> i = 0; i &lt; s.count; i++)
+    printf(<span style="color: #a31515">&quot;%d &quot;</span>, s.items[i]);
+<span style="color: #008000">// 1 3 5 7</span>
+
+<span style="color: #008000">// remove item 1</span>
+Bag_Remove(&amp;s, 1);
+<span style="color: #0000ff">for</span>(<span style="color: #2b91af">int</span> i = 0; i &lt; s.count; i++)
+    printf(<span style="color: #a31515">&quot;%d &quot;</span>, s.items[i]);
+<span style="color: #008000">// 1 7 5</span>
+
+<span style="color: #008000">// remove item 0</span>
+Bag_Remove(&amp;s, 0);
+<span style="color: #0000ff">for</span>(<span style="color: #2b91af">int</span> i = 0; i &lt; s.count; i++)
+    printf(<span style="color: #a31515">&quot;%d &quot;</span>, s.items[i]);
+<span style="color: #008000">// 5 7</span>
+</pre></div>
+
+
+<p>The size of the bag is fixed at 10, if we add an 11th item it is discarded and lost.  Obviously we want to be able to specify how many items to store.</p>
+
+<p>One option is to statically declare the array size using a template parameter.</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%">template&lt;<span style="color: #2b91af">int</span> N&gt;
+<span style="color: #0000ff">struct</span> Bag {
+    <span style="color: #2b91af">int</span> capacity;
+    <span style="color: #2b91af">int</span> count;
+    <span style="color: #2b91af">int</span> items[N];
+};
+</pre></div>
+</p>
+
+<p>This is useful for static sized Bags and declaring temporary Bag variables on the stack.  A downside is that the number of items is part of the type, it has to be passed as that specific type.  A Bag<10> cannot be used in place of a Bag<20>, and neither can be passed to a function.  There are ways around this using templates but that becomes more complicated than I&rsquo;d like.</p>
+
+<p>The other option is to have the Bag dynamically allocate the item memory for us.</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">struct</span> Bag {
+    <span style="color: #2b91af">int</span> capacity;
+    <span style="color: #2b91af">int</span> count;
+    <span style="color: #2b91af">int</span> *items;
+};
+
+<span style="color: #2b91af">void</span> Bag_Init(Bag *s, <span style="color: #2b91af">int</span> capacity)
+{
+    s-&gt;capacity = capacity;
+    s-&gt;count = 0;
+    s-&gt;items = (<span style="color: #2b91af">int</span> *)malloc(<span style="color: #0000ff">sizeof</span>(<span style="color: #2b91af">int</span>) * capacity);
+}
+
+<span style="color: #2b91af">void</span> Bag_Free(Bag *s)
+{
+    free(s-&gt;items);
+}
+
+Bag s;
+Bag_Init(&amp;s, 10);
+...
+Bag_Free(&amp;s);
+</pre></div>
+</p>
+
+<p>This is convenient, but the user has no control over the allocation.  The Bag could take custom alloc/free hooks in Bag_Init.</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">struct</span> Bag {
+    <span style="color: #2b91af">int</span> capacity;
+    <span style="color: #2b91af">int</span> count;
+    <span style="color: #2b91af">int</span> *items;
+    <span style="color: #2b91af">void</span> *(*malloc)(<span style="color: #2b91af">size_t</span>);
+    <span style="color: #2b91af">void</span> (*free)(<span style="color: #2b91af">void</span> *);
+    <span style="color: #2b91af">void</span> *userdata;
+};
+
+
+<span style="color: #2b91af">void</span> Bag_Init(Bag *s, <span style="color: #2b91af">int</span> capacity, <span style="color: #2b91af">void</span> *(*customMalloc)(<span style="color: #2b91af">size_t</span>, <span style="color: #2b91af">void</span> *userdata), <span style="color: #2b91af">void</span> (*customFree)(<span style="color: #2b91af">void</span> *, <span style="color: #2b91af">void</span> *userdata), <span style="color: #2b91af">void</span> *userdata)
+{
+    s-&gt;malloc = malloc;
+    s-&gt;free = free;
+    <span style="color: #0000ff">if</span> (customMalloc) {
+        s-&gt;malloc = customMalloc;
+    }
+    <span style="color: #0000ff">if</span> (customFree) {
+        s-&gt;free = customFree;
+    }
+    s-&gt;userdata = userdata;
+
+    s-&gt;capacity = capacity;
+    s-&gt;count = 0;
+    s-&gt;items = (<span style="color: #2b91af">int</span> *)s-&gt;malloc(<span style="color: #0000ff">sizeof</span>(<span style="color: #2b91af">int</span>) * capacity, s-&gt;userdata);
+}
+
+<span style="color: #2b91af">void</span> Bag_Free(Bag *s)
+{
+    s-&gt;free(s-&gt;items, s-&gt;userdata);
+}
+
+
+<span style="color: #0000ff">struct</span> Buffer {
+    <span style="color: #2b91af">void</span> *data;
+    <span style="color: #2b91af">int</span> used;
+    <span style="color: #2b91af">int</span> capacity;
+};
+
+<span style="color: #2b91af">void</span> *myAlloc(<span style="color: #2b91af">size_t</span> size, <span style="color: #2b91af">void</span> *userdata)
+{
+    Buffer *b = (Buffer *)userdata;
+    <span style="color: #2b91af">void</span> *mem = (byte *)b-&gt;data + b-&gt;used;
+    b-&gt;used += size;
+    <span style="color: #0000ff">return</span> mem;
+}
+
+<span style="color: #2b91af">void</span> myFree(<span style="color: #2b91af">void</span> *p)
+{
+    <span style="color: #008000">// don&#39;t need to free stack memory</span>
+}
+
+byte memory[1024];
+Buffer b = {memory, 0, <span style="color: #0000ff">sizeof</span>(memory)};
+
+Bag s;
+Bag_Init(&amp;s, 10, myAlloc, myFree, &amp;b);
+...
+Bag_Free(&amp;s);
+</pre></div>
+</p>
+
+<p>So this is better, right?  The Bag is encapsulated and can manage itself, great!  But it takes a lot of work just to tell the Bag where to allocate memory, which makes using the Bag very inconvenient.  This is supposed to be a lightweight data structure!</p>
+
+<p>An alternative is to <em>give</em> Bag the items to work on.  This allows the user to control the items allocation and the Bag only handles the logic.  The Bag can use stack, heap or custom memory trivially.</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">struct</span> Bag {
+    <span style="color: #2b91af">int</span> capacity;
+    <span style="color: #2b91af">int</span> count;
+    <span style="color: #2b91af">int</span> *items;
+};
+
+<span style="color: #2b91af">void</span> Bag_Init(Bag *s, <span style="color: #2b91af">int</span> *items, <span style="color: #2b91af">int</span> capacity)
+{
+    s-&gt;capacity = capacity;
+    s-&gt;count = 0;
+    s-&gt;items = items;
+}
+
+<span style="color: #2b91af">int</span> items[10];
+Bag s;
+Bag_Init(&amp;s, items, 10);
+...
+
+<span style="color: #2b91af">int</span> *items = CustomAlloc(<span style="color: #0000ff">sizeof</span>(<span style="color: #2b91af">int</span>) * 10);
+Bag s;
+Bag_Init(&amp;s, items, 10);
+...
+</pre></div>
+</p>
+
+<p>In this example, the Bag acts as an overlay on the items array.  But now the Bag is two discontiguous chunks of memory: the Bag structure and the items array.  Moving, copying or reallocating the Bag is a multistep process: 1) copy the Bag struct  2) alloc a new items array  3) copy the old items into the new array  4) assign the new items to the new Bag&rsquo;s items.</p>
+
+<p>We could allocate the Bag and items as a contiguous block of memory.</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">struct</span> Bag {
+    <span style="color: #2b91af">int</span> capacity;
+    <span style="color: #2b91af">int</span> count;
+    <span style="color: #2b91af">int</span> items[];
+};
+
+<span style="color: #2b91af">void</span> Bag_Init(Bag *s, <span style="color: #2b91af">int</span> bytes)
+{
+    s-&gt;capacity = (bytes - <span style="color: #0000ff">sizeof</span>(Bag)) / <span style="color: #0000ff">sizeof</span>(<span style="color: #2b91af">int</span>);
+    s-&gt;count = 0;
+}
+
+byte memory[1024];
+Bag *s = (Bag *)memory;
+Bag_Init(&amp;s, 1024);
+...
+
+Bag *s = (Bag *)malloc(1024);
+Bag_Init(&amp;s, 1024);
+...
+<span style="color: #008000">// out of space!</span>
+<span style="color: #0000ff">if</span>(!Bag_Add(&amp;s, i)) {
+    s = (Bag *)realloc(s, 2048);
+    Bag_Add(&amp;s, i);
+}
+free(s);
+</pre></div>
+</p>
+
+<p>Now the Bag can be trivially memcpy&rsquo;d and realloc&rsquo;d as a single block of data and is always internally consistent.  But there is also a downside to this approach.  Realloc&rsquo;ing the Bag can return a different pointer invalidating existing references to the Bag.  With an internal items pointer realloc&rsquo;ing the items inside the Bag won&rsquo;t break other references to the Bag.</p>
+
+<p>Finally, the Bag isn&rsquo;t very useful if it only works with ints.  A template can be used to parameterize the type of the items array.</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%">template&lt;<span style="color: #0000ff">typename</span> T&gt;
+<span style="color: #0000ff">struct</span> Bag {
+    <span style="color: #2b91af">int</span> capacity;
+    <span style="color: #2b91af">int</span> count;
+    T items[];
+};
+
+template&lt;<span style="color: #0000ff">typename</span> T&gt;
+<span style="color: #2b91af">void</span> Bag_Init(Bag&lt;T&gt; *s, <span style="color: #2b91af">int</span> bytes)
+{
+    s-&gt;capacity = (bytes - <span style="color: #0000ff">sizeof</span>(Bag&lt;T&gt;)) / <span style="color: #0000ff">sizeof</span>(T);
+    s-&gt;count = 0;
+}
+
+template&lt;<span style="color: #0000ff">typename</span> T&gt;
+<span style="color: #2b91af">bool</span> Bag_Add(Bag&lt;T&gt; *s, T value)
+{
+    <span style="color: #0000ff">if</span> (s-&gt;count + 1 &gt; s-&gt;capacity) {
+        <span style="color: #0000ff">return</span> false;
+    }
+
+    s-&gt;items[s-&gt;count++] = value;
+    <span style="color: #0000ff">return</span> true;
+}
+
+template&lt;<span style="color: #0000ff">typename</span> T&gt;
+<span style="color: #2b91af">void</span> Bag_Remove(Bag&lt;T&gt; *s, <span style="color: #2b91af">int</span> index)
+{
+    <span style="color: #0000ff">if</span> (index &gt;= 0 &amp;&amp; index &lt; s-&gt;count) {
+        s-&gt;count--;
+        s-&gt;items[index] = s-&gt;items[s-&gt;count];
+    }
+}
+</pre></div>
+</p>
+
+<p>That is the whole Bag implementation: one struct and three simple functions.</p>
+
+<p>One last note, I prefer not to obscure data structures behind accessor functions.  In this case, I am not creating Bag_Count, Bag_Get, Bag_Set accessors because they can be accessed directly on the structure itself.</p>
+
+<h2 id="the-bag:792802c592a1fbef33a7ae4e1d40beb6">The Bag</h2>
+
+<ul>
+<li>Does not manage it&rsquo;s own memory, can easily be used with any user memory</li>
+<li>Can be relocated, copied or reallocated as a single memory block</li>
+<li>Adding and removing items is one value copy and one addition</li>
+</ul>
+
+<p>Niklas Frykholm uses this style of linear allocation and calculating pointer offsets in his nflibs string table implementation.</p>
+
+<p><a href="https://github.com/niklasfrykholm/nflibs/blob/master/nf_string_table.c">https://github.com/niklasfrykholm/nflibs/blob/master/nf_string_table.c</a></p>
+
+    </div>
+    <div class="post-footer">
+      <a href="http://mironside.com//post" class="btn btn-primary btn-block btn-lg">View All 5 Articles →</a>
+
+    </div>
+    
+  </div>
+  <div class="col-sm-4">
+    <h3>
+  Author
+</h3>
+
+<p>
+  <div class="media">
+    <img src="http://www.gravatar.com/avatar/?s=100" alt="" class="pull-left">
+    <div class="media-body">
+      <h4 class="media-heading"></h4>
+    </div>
+  </div>
+</p>
+
+<p><a href="https://twitter.com/" class="twitter-follow-button" data-show-screen-name="false" data-show-count="true" data-dnt="true" data-size="large">Follow @</a></p>
+
+  </div>
+</div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy; 2015.
+Built with <a href="http://gohugo.io/">Hugo</a> and
+<a href="https://github.com/chibicode/hugo-theme-shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    <script src="http://mironside.com//javascripts/shiori.js"></script>
+    
+
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+  </body>
+</html>
+

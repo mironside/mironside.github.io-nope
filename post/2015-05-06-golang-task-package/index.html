@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://mironside.com//stylesheets/shiori.css">
+    <link href='//fonts.googleapis.com/css?family=Montserrat:700,400' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Merriweather:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="http://mironside.com//favicon.ico">
+    <title>Build System in Go | mironside</title>
+    
+    
+
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <div class="navbar-toggle-wrapper visible-xs">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".js-navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <a href="http://mironside.com/" class="navbar-brand">mironside</a>
+        </div>
+        <div class="collapse navbar-collapse js-navbar-collapse">
+          <ul class="navbar-nav nav">
+            <li><a href="http://mironside.com//post">Archive</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li class="hidden-xs"><iframe src="http://ghbtns.com/github-btn.html?user=chibicode&repo=hugo-theme-shiori&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30" style="margin-top: 14px;"></iframe>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+
+<div class="row">
+  <div class="col-sm-8">
+    <div class="post-header">
+      <h1 class="post-title-main">Build System in Go</h1>
+      <p class="text-muted">May 6, 2015</p>
+
+    </div>
+    <div class="post-content">
+      <p>I wrote a golang package called tiny/task which implements the ideas of the task based build system described in a <a href="{% post_url 2015-05-01-notes-on-task-based-build-system %}">previous post</a>.  Here is the tiny/task godoc:</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">type</span> Line <span style="color: #0000ff">struct</span> {
+    Name <span style="color: #2b91af">string</span>
+    Data <span style="color: #0000ff">interface</span>{}
+}
+
+<span style="color: #0000ff">type</span> Task <span style="color: #0000ff">interface</span> {
+    Parse(line <span style="color: #0000ff">interface</span>{}) ([]<span style="color: #2b91af">string</span>, []<span style="color: #2b91af">string</span>, <span style="color: #2b91af">error</span>)
+    Execute(line <span style="color: #0000ff">interface</span>{}) ([]Line, <span style="color: #2b91af">error</span>)
+}
+
+<span style="color: #0000ff">func</span> Register(name <span style="color: #2b91af">string</span>, task Task)
+<span style="color: #0000ff">func</span> Execute(tasklines []Line) <span style="color: #2b91af">error</span>
+</pre></div>
+
+
+<p>With tiny/task it is very easy to define your own tasks, schedule and execute them.  Internally tiny/task handles crc&rsquo;ing input/output files to detect file changes.  It also discovers file dependencies between tasks and ensures that tasks execute in the correct order.</p>
+
+<p>Here is a simple program that declares a compile task and schedules a task to compile main.c to main.obj.</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">package</span> main
+
+<span style="color: #0000ff">import</span> (
+	<span style="color: #a31515">&quot;os/exec&quot;</span>
+	<span style="color: #a31515">&quot;tiny/task&quot;</span>
+)
+
+<span style="color: #0000ff">type</span> CompileData <span style="color: #0000ff">struct</span> {
+	SourceFile <span style="color: #2b91af">string</span>
+	ObjectFile <span style="color: #2b91af">string</span>
+}
+
+<span style="color: #0000ff">type</span> CompileTask <span style="color: #0000ff">struct</span>{}
+
+<span style="color: #0000ff">func</span> (*CompileTask) Parse(line <span style="color: #0000ff">interface</span>{}) ([]<span style="color: #2b91af">string</span>, []<span style="color: #2b91af">string</span>, <span style="color: #2b91af">error</span>) {
+	d := line.(CompileData)
+	<span style="color: #0000ff">return</span> []<span style="color: #2b91af">string</span>{d.SourceFile}, []<span style="color: #2b91af">string</span>{d.ObjectFile}, <span style="color: #0000ff">nil</span>
+}
+
+<span style="color: #0000ff">func</span> (*CompileTask) Execute(line <span style="color: #0000ff">interface</span>{}) ([]task.Line, <span style="color: #2b91af">error</span>) {
+	d := line.(CompileData)
+	cmd := exec.Command(<span style="color: #a31515">&quot;cl.exe&quot;</span>, <span style="color: #a31515">&quot;-Tp&quot;</span>, d.SourceFile, <span style="color: #a31515">&quot;-Fo&quot;</span>, d.ObjectFile)
+	err := cmd.Run()
+	<span style="color: #0000ff">return</span> <span style="color: #0000ff">nil</span>, err
+}
+
+<span style="color: #0000ff">func</span> main() {
+	task.Register(<span style="color: #a31515">&quot;compile&quot;</span>, new(CompileTask))
+	taskline := task.Line{<span style="color: #a31515">&quot;compile&quot;</span>, CompileData{<span style="color: #a31515">&quot;main.c&quot;</span>, <span style="color: #a31515">&quot;main.obj&quot;</span>}}
+	task.Execute([]task.Line{taskline})
+}
+</pre></div>
+</p>
+
+    </div>
+    <div class="post-footer">
+      <a href="http://mironside.com//post" class="btn btn-primary btn-block btn-lg">View All 5 Articles →</a>
+
+    </div>
+    
+  </div>
+  <div class="col-sm-4">
+    <h3>
+  Author
+</h3>
+
+<p>
+  <div class="media">
+    <img src="http://www.gravatar.com/avatar/?s=100" alt="" class="pull-left">
+    <div class="media-body">
+      <h4 class="media-heading"></h4>
+    </div>
+  </div>
+</p>
+
+<p><a href="https://twitter.com/" class="twitter-follow-button" data-show-screen-name="false" data-show-count="true" data-dnt="true" data-size="large">Follow @</a></p>
+
+  </div>
+</div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy; 2015.
+Built with <a href="http://gohugo.io/">Hugo</a> and
+<a href="https://github.com/chibicode/hugo-theme-shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    <script src="http://mironside.com//javascripts/shiori.js"></script>
+    
+
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+  </body>
+</html>
+
