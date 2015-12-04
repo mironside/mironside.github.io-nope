@@ -1,0 +1,619 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on mironside</title>
+    <link>http://mironside.com/post/</link>
+    <description>Recent content in Posts on mironside</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 23 Sep 2015 00:00:00 -0600</lastBuildDate>
+    <atom:link href="http://mironside.com/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>C API Internal Access Protection</title>
+      <link>http://mironside.com/post/2015-09-23-c-api-internal-access-protection/</link>
+      <pubDate>Wed, 23 Sep 2015 00:00:00 -0600</pubDate>
+      
+      <guid>http://mironside.com/post/2015-09-23-c-api-internal-access-protection/</guid>
+      <description>
+
+&lt;p&gt;I like C style apis, they&amp;rsquo;re simple and clean.  When I create an api I use an underscored prefix to group functions in the same api.&lt;/p&gt;
+
+&lt;h3 id=&#34;c-time-api:d40493909dc16965ed33df035bd64be1&#34;&gt;C Time API&lt;/h3&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #2b91af&#34;&gt;uint64_t&lt;/span&gt; Time_GetTicks();
+&lt;span style=&#34;color: #2b91af&#34;&gt;uint64_t&lt;/span&gt; Time_GetTickFrequency();
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In the source file I group api data in a static struct instance named with the same prefix.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; Time_ {
+	LARGE_INTEGER timeStart;
+	LARGE_INTEGER timeFrequency;
+} Time_;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The struct type is declared with the same name as the instance so statics and type declarations can be accessed through the same Time_:: namespace.  In fact, any use of the Time api starts with the same prefix:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Time_::type&lt;/li&gt;
+&lt;li&gt;Time_.member&lt;/li&gt;
+&lt;li&gt;Time_Function()&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This allows trivial api renaming with a simple find and replace of &amp;ldquo;Time_&amp;rdquo;.  The underscored name also avoids conflicting with any user facing typename that might be returned by the api.  A File_ api might want to return a File pointer for example.&lt;/p&gt;
+
+&lt;p&gt;Inside the api functions the struct is always used explicitly.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Time_Initialize()
+{
+	QueryPerformanceCounter(&amp;amp;Time_.timeStart);
+	QueryPerformanceFrequency(&amp;amp;Time_.timeFrequency);
+}
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;uint64_t&lt;/span&gt; Time_GetTicks()
+{
+	LARGE_INTEGER now;
+	QueryPerformanceCounter(&amp;amp;now);
+	&lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; now.QuadPart - Time_.timeStart.QuadPart;
+}
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;uint64_t&lt;/span&gt; Time_GetTickFrequency()
+{
+	&lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; Time_.timeFrequency.QuadPart;
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This organization is clean and simple and the data is hidden inside the translation unit.  Pretty good, but it would be nice to protect the api data from being used outside the api functions inside the same translation unit.  This is especially handy for unity builds where everything is in the same translation unit.&lt;/p&gt;
+
+&lt;p&gt;The adjustment is simple: 1) make members private 2) make api functions friends&lt;/p&gt;
+
+&lt;p&gt;I prefer to use a class instead of a struct so members default to private without the noise of an extra private: statement.  Friend declarations simply follow the data declarations in the class.  This has a nice effect of grouping everything in the api but with the downside of needing to redeclare the functions an extra time as friends.&lt;/p&gt;
+
+&lt;h3 id=&#34;access-protection:d40493909dc16965ed33df035bd64be1&#34;&gt;Access Protection&lt;/h3&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;static&lt;/span&gt; class Time_ {
+	LARGE_INTEGER timeStart;
+	LARGE_INTEGER timeFrequency;
+
+	friend &lt;span style=&#34;color: #0000ff&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Time_Initialize();
+	friend &lt;span style=&#34;color: #2b91af&#34;&gt;uint64_t&lt;/span&gt; Time_GetTicks();
+	friend &lt;span style=&#34;color: #2b91af&#34;&gt;uint64_t&lt;/span&gt; Time_GetTickFrequency();
+} Time_;
+
+&lt;span style=&#34;color: #0000ff&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Time_Initialize()
+{
+	QueryPerformanceCounter(&amp;amp;Time_.timeStart);
+	QueryPerformanceFrequency(&amp;amp;Time_.timeFrequency);
+}
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;uint64_t&lt;/span&gt; Time_GetTicks()
+{
+	LARGE_INTEGER now;
+	QueryPerformanceCounter(&amp;amp;now);
+	&lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; now.QuadPart - Time_.timeStart.QuadPart;
+}
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;uint64_t&lt;/span&gt; Time_GetTickFrequency()
+{
+	&lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; Time_.timeFrequency.QuadPart;
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;The best part is that this has no effect on the organization of the rest of the C code.  You can add or remove data protection simply by changing the struct declaration.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Considerations of a Bag Data Structure</title>
+      <link>http://mironside.com/post/2015-06-08-set-data-structure/</link>
+      <pubDate>Mon, 08 Jun 2015 00:00:00 -0600</pubDate>
+      
+      <guid>http://mironside.com/post/2015-06-08-set-data-structure/</guid>
+      <description>
+
+&lt;p&gt;I wanted to write a post about the details considered when implementing a simple data structure in the C style (ie. C with a tiny bit of C++).  Here goes&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;A Bag data structure stores a collection of unordered, non-unique items.  It differs from an Array (which stores ordered, non-unique items) and a Set (which stores unordered, unique items).  A Bag can be used in place of an Array where the order of the collection is not important.  For instance, a graph node&amp;rsquo;s children have no specific order and could be stored in a Bag.&lt;/p&gt;
+
+&lt;p&gt;A Bag performs the same as an Array except that the remove operation is constant and may change item order.  Removing the 0th element of a 1,000,000 item Array causes 999,999 items be moved.  A Bag, on the other hand, simply removes the 0th item by moving the 999,999th item into the 0th index.&lt;/p&gt;
+
+&lt;p&gt;Here is a simple unstructured Bag implementation using an array.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #008000&#34;&gt;// bag implementation over an array&lt;/span&gt;
+&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; count = 0;
+&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; items[10];
+
+&lt;span style=&#34;color: #008000&#34;&gt;// add items&lt;/span&gt;
+items[count++] = 1;
+items[count++] = 3;
+items[count++] = 5;
+items[count++] = 7;
+&lt;span style=&#34;color: #0000ff&#34;&gt;for&lt;/span&gt;(&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; i = 0; i &amp;lt; count; i++)
+    printf(&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;%d &amp;quot;&lt;/span&gt;, items[i]);
+&lt;span style=&#34;color: #008000&#34;&gt;// 1 3 5 7&lt;/span&gt;
+
+&lt;span style=&#34;color: #008000&#34;&gt;// remove item 1&lt;/span&gt;
+items[1] = items[--count];
+&lt;span style=&#34;color: #0000ff&#34;&gt;for&lt;/span&gt;(&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; i = 0; i &amp;lt; count; i++)
+    printf(&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;%d &amp;quot;&lt;/span&gt;, items[i]);
+&lt;span style=&#34;color: #008000&#34;&gt;// 1 7 5&lt;/span&gt;
+
+&lt;span style=&#34;color: #008000&#34;&gt;// remove item 0&lt;/span&gt;
+items[0] = items[--count];
+&lt;span style=&#34;color: #0000ff&#34;&gt;for&lt;/span&gt;(&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; i = 0; i &amp;lt; count; i++)
+    printf(&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;%d &amp;quot;&lt;/span&gt;, items[i]);
+&lt;span style=&#34;color: #008000&#34;&gt;// 5 7&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The logic for the Bag is very simple but prone to error when used manuaully.  It is prudent to create a struct and set of functions to simplify using a Bag.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; Bag {
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; count;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; items[10];
+};
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Bag_Init(Bag *s)
+{
+    s-&amp;gt;count = 0;
+}
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;bool&lt;/span&gt; Bag_Add(Bag *s, &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; value)
+{
+    &lt;span style=&#34;color: #0000ff&#34;&gt;if&lt;/span&gt; (s-&amp;gt;count + 1 &amp;gt; &lt;span style=&#34;color: #0000ff&#34;&gt;sizeof&lt;/span&gt;(s-&amp;gt;items) / &lt;span style=&#34;color: #0000ff&#34;&gt;sizeof&lt;/span&gt;(s-&amp;gt;items[0])) {
+        &lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; false;
+    }
+
+    s-&amp;gt;items[s-&amp;gt;count++] = value;
+    &lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; true;
+}
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Bag_Remove(Bag *s, &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; index)
+{
+    &lt;span style=&#34;color: #0000ff&#34;&gt;if&lt;/span&gt; (index &amp;gt;= 0 &amp;amp;&amp;amp; index &amp;lt; s-&amp;gt;count) {
+        s-&amp;gt;items[index] = s-&amp;gt;items[--s-&amp;gt;count];
+    }
+}
+
+
+Bag s;
+
+Bag_Init(&amp;amp;s);
+
+&lt;span style=&#34;color: #008000&#34;&gt;// add items&lt;/span&gt;
+Bag_Add(&amp;amp;s, 1);
+Bag_Add(&amp;amp;s, 3);
+Bag_Add(&amp;amp;s, 5);
+Bag_Add(&amp;amp;s, 7);
+&lt;span style=&#34;color: #0000ff&#34;&gt;for&lt;/span&gt;(&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; i = 0; i &amp;lt; s.count; i++)
+    printf(&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;%d &amp;quot;&lt;/span&gt;, s.items[i]);
+&lt;span style=&#34;color: #008000&#34;&gt;// 1 3 5 7&lt;/span&gt;
+
+&lt;span style=&#34;color: #008000&#34;&gt;// remove item 1&lt;/span&gt;
+Bag_Remove(&amp;amp;s, 1);
+&lt;span style=&#34;color: #0000ff&#34;&gt;for&lt;/span&gt;(&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; i = 0; i &amp;lt; s.count; i++)
+    printf(&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;%d &amp;quot;&lt;/span&gt;, s.items[i]);
+&lt;span style=&#34;color: #008000&#34;&gt;// 1 7 5&lt;/span&gt;
+
+&lt;span style=&#34;color: #008000&#34;&gt;// remove item 0&lt;/span&gt;
+Bag_Remove(&amp;amp;s, 0);
+&lt;span style=&#34;color: #0000ff&#34;&gt;for&lt;/span&gt;(&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; i = 0; i &amp;lt; s.count; i++)
+    printf(&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;%d &amp;quot;&lt;/span&gt;, s.items[i]);
+&lt;span style=&#34;color: #008000&#34;&gt;// 5 7&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The size of the bag is fixed at 10, if we add an 11th item it is discarded and lost.  Obviously we want to be able to specify how many items to store.&lt;/p&gt;
+
+&lt;p&gt;One option is to statically declare the array size using a template parameter.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;template&amp;lt;&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; N&amp;gt;
+&lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; Bag {
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; capacity;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; count;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; items[N];
+};
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;This is useful for static sized Bags and declaring temporary Bag variables on the stack.  A downside is that the number of items is part of the type, it has to be passed as that specific type.  A Bag&lt;10&gt; cannot be used in place of a Bag&lt;20&gt;, and neither can be passed to a function.  There are ways around this using templates but that becomes more complicated than I&amp;rsquo;d like.&lt;/p&gt;
+
+&lt;p&gt;The other option is to have the Bag dynamically allocate the item memory for us.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; Bag {
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; capacity;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; count;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; *items;
+};
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Bag_Init(Bag *s, &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; capacity)
+{
+    s-&amp;gt;capacity = capacity;
+    s-&amp;gt;count = 0;
+    s-&amp;gt;items = (&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; *)malloc(&lt;span style=&#34;color: #0000ff&#34;&gt;sizeof&lt;/span&gt;(&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt;) * capacity);
+}
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Bag_Free(Bag *s)
+{
+    free(s-&amp;gt;items);
+}
+
+Bag s;
+Bag_Init(&amp;amp;s, 10);
+...
+Bag_Free(&amp;amp;s);
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;This is convenient, but the user has no control over the allocation.  The Bag could take custom alloc/free hooks in Bag_Init.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; Bag {
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; capacity;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; count;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; *items;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *(*malloc)(&lt;span style=&#34;color: #2b91af&#34;&gt;size_t&lt;/span&gt;);
+    &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; (*free)(&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *);
+    &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *userdata;
+};
+
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Bag_Init(Bag *s, &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; capacity, &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *(*customMalloc)(&lt;span style=&#34;color: #2b91af&#34;&gt;size_t&lt;/span&gt;, &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *userdata), &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; (*customFree)(&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *, &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *userdata), &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *userdata)
+{
+    s-&amp;gt;malloc = malloc;
+    s-&amp;gt;free = free;
+    &lt;span style=&#34;color: #0000ff&#34;&gt;if&lt;/span&gt; (customMalloc) {
+        s-&amp;gt;malloc = customMalloc;
+    }
+    &lt;span style=&#34;color: #0000ff&#34;&gt;if&lt;/span&gt; (customFree) {
+        s-&amp;gt;free = customFree;
+    }
+    s-&amp;gt;userdata = userdata;
+
+    s-&amp;gt;capacity = capacity;
+    s-&amp;gt;count = 0;
+    s-&amp;gt;items = (&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; *)s-&amp;gt;malloc(&lt;span style=&#34;color: #0000ff&#34;&gt;sizeof&lt;/span&gt;(&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt;) * capacity, s-&amp;gt;userdata);
+}
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Bag_Free(Bag *s)
+{
+    s-&amp;gt;free(s-&amp;gt;items, s-&amp;gt;userdata);
+}
+
+
+&lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; Buffer {
+    &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *data;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; used;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; capacity;
+};
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *myAlloc(&lt;span style=&#34;color: #2b91af&#34;&gt;size_t&lt;/span&gt; size, &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *userdata)
+{
+    Buffer *b = (Buffer *)userdata;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *mem = (byte *)b-&amp;gt;data + b-&amp;gt;used;
+    b-&amp;gt;used += size;
+    &lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; mem;
+}
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; myFree(&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; *p)
+{
+    &lt;span style=&#34;color: #008000&#34;&gt;// don&amp;#39;t need to free stack memory&lt;/span&gt;
+}
+
+byte memory[1024];
+Buffer b = {memory, 0, &lt;span style=&#34;color: #0000ff&#34;&gt;sizeof&lt;/span&gt;(memory)};
+
+Bag s;
+Bag_Init(&amp;amp;s, 10, myAlloc, myFree, &amp;amp;b);
+...
+Bag_Free(&amp;amp;s);
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;So this is better, right?  The Bag is encapsulated and can manage itself, great!  But it takes a lot of work just to tell the Bag where to allocate memory, which makes using the Bag very inconvenient.  This is supposed to be a lightweight data structure!&lt;/p&gt;
+
+&lt;p&gt;An alternative is to &lt;em&gt;give&lt;/em&gt; Bag the items to work on.  This allows the user to control the items allocation and the Bag only handles the logic.  The Bag can use stack, heap or custom memory trivially.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; Bag {
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; capacity;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; count;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; *items;
+};
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Bag_Init(Bag *s, &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; *items, &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; capacity)
+{
+    s-&amp;gt;capacity = capacity;
+    s-&amp;gt;count = 0;
+    s-&amp;gt;items = items;
+}
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; items[10];
+Bag s;
+Bag_Init(&amp;amp;s, items, 10);
+...
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; *items = CustomAlloc(&lt;span style=&#34;color: #0000ff&#34;&gt;sizeof&lt;/span&gt;(&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt;) * 10);
+Bag s;
+Bag_Init(&amp;amp;s, items, 10);
+...
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;In this example, the Bag acts as an overlay on the items array.  But now the Bag is two discontiguous chunks of memory: the Bag structure and the items array.  Moving, copying or reallocating the Bag is a multistep process: 1) copy the Bag struct  2) alloc a new items array  3) copy the old items into the new array  4) assign the new items to the new Bag&amp;rsquo;s items.&lt;/p&gt;
+
+&lt;p&gt;We could allocate the Bag and items as a contiguous block of memory.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; Bag {
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; capacity;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; count;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; items[];
+};
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Bag_Init(Bag *s, &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; bytes)
+{
+    s-&amp;gt;capacity = (bytes - &lt;span style=&#34;color: #0000ff&#34;&gt;sizeof&lt;/span&gt;(Bag)) / &lt;span style=&#34;color: #0000ff&#34;&gt;sizeof&lt;/span&gt;(&lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt;);
+    s-&amp;gt;count = 0;
+}
+
+byte memory[1024];
+Bag *s = (Bag *)memory;
+Bag_Init(&amp;amp;s, 1024);
+...
+
+Bag *s = (Bag *)malloc(1024);
+Bag_Init(&amp;amp;s, 1024);
+...
+&lt;span style=&#34;color: #008000&#34;&gt;// out of space!&lt;/span&gt;
+&lt;span style=&#34;color: #0000ff&#34;&gt;if&lt;/span&gt;(!Bag_Add(&amp;amp;s, i)) {
+    s = (Bag *)realloc(s, 2048);
+    Bag_Add(&amp;amp;s, i);
+}
+free(s);
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Now the Bag can be trivially memcpy&amp;rsquo;d and realloc&amp;rsquo;d as a single block of data and is always internally consistent.  But there is also a downside to this approach.  Realloc&amp;rsquo;ing the Bag can return a different pointer invalidating existing references to the Bag.  With an internal items pointer realloc&amp;rsquo;ing the items inside the Bag won&amp;rsquo;t break other references to the Bag.&lt;/p&gt;
+
+&lt;p&gt;Finally, the Bag isn&amp;rsquo;t very useful if it only works with ints.  A template can be used to parameterize the type of the items array.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;template&amp;lt;&lt;span style=&#34;color: #0000ff&#34;&gt;typename&lt;/span&gt; T&amp;gt;
+&lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; Bag {
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; capacity;
+    &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; count;
+    T items[];
+};
+
+template&amp;lt;&lt;span style=&#34;color: #0000ff&#34;&gt;typename&lt;/span&gt; T&amp;gt;
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Bag_Init(Bag&amp;lt;T&amp;gt; *s, &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; bytes)
+{
+    s-&amp;gt;capacity = (bytes - &lt;span style=&#34;color: #0000ff&#34;&gt;sizeof&lt;/span&gt;(Bag&amp;lt;T&amp;gt;)) / &lt;span style=&#34;color: #0000ff&#34;&gt;sizeof&lt;/span&gt;(T);
+    s-&amp;gt;count = 0;
+}
+
+template&amp;lt;&lt;span style=&#34;color: #0000ff&#34;&gt;typename&lt;/span&gt; T&amp;gt;
+&lt;span style=&#34;color: #2b91af&#34;&gt;bool&lt;/span&gt; Bag_Add(Bag&amp;lt;T&amp;gt; *s, T value)
+{
+    &lt;span style=&#34;color: #0000ff&#34;&gt;if&lt;/span&gt; (s-&amp;gt;count + 1 &amp;gt; s-&amp;gt;capacity) {
+        &lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; false;
+    }
+
+    s-&amp;gt;items[s-&amp;gt;count++] = value;
+    &lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; true;
+}
+
+template&amp;lt;&lt;span style=&#34;color: #0000ff&#34;&gt;typename&lt;/span&gt; T&amp;gt;
+&lt;span style=&#34;color: #2b91af&#34;&gt;void&lt;/span&gt; Bag_Remove(Bag&amp;lt;T&amp;gt; *s, &lt;span style=&#34;color: #2b91af&#34;&gt;int&lt;/span&gt; index)
+{
+    &lt;span style=&#34;color: #0000ff&#34;&gt;if&lt;/span&gt; (index &amp;gt;= 0 &amp;amp;&amp;amp; index &amp;lt; s-&amp;gt;count) {
+        s-&amp;gt;count--;
+        s-&amp;gt;items[index] = s-&amp;gt;items[s-&amp;gt;count];
+    }
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;That is the whole Bag implementation: one struct and three simple functions.&lt;/p&gt;
+
+&lt;p&gt;One last note, I prefer not to obscure data structures behind accessor functions.  In this case, I am not creating Bag_Count, Bag_Get, Bag_Set accessors because they can be accessed directly on the structure itself.&lt;/p&gt;
+
+&lt;h2 id=&#34;the-bag:792802c592a1fbef33a7ae4e1d40beb6&#34;&gt;The Bag&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Does not manage it&amp;rsquo;s own memory, can easily be used with any user memory&lt;/li&gt;
+&lt;li&gt;Can be relocated, copied or reallocated as a single memory block&lt;/li&gt;
+&lt;li&gt;Adding and removing items is one value copy and one addition&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Niklas Frykholm uses this style of linear allocation and calculating pointer offsets in his nflibs string table implementation.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/niklasfrykholm/nflibs/blob/master/nf_string_table.c&#34;&gt;https://github.com/niklasfrykholm/nflibs/blob/master/nf_string_table.c&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Build System in Go</title>
+      <link>http://mironside.com/post/2015-05-06-golang-task-package/</link>
+      <pubDate>Wed, 06 May 2015 00:00:00 -0600</pubDate>
+      
+      <guid>http://mironside.com/post/2015-05-06-golang-task-package/</guid>
+      <description>&lt;p&gt;I wrote a golang package called tiny/task which implements the ideas of the task based build system described in a &lt;a href=&#34;{% post_url 2015-05-01-notes-on-task-based-build-system %}&#34;&gt;previous post&lt;/a&gt;.  Here is the tiny/task godoc:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;type&lt;/span&gt; Line &lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; {
+    Name &lt;span style=&#34;color: #2b91af&#34;&gt;string&lt;/span&gt;
+    Data &lt;span style=&#34;color: #0000ff&#34;&gt;interface&lt;/span&gt;{}
+}
+
+&lt;span style=&#34;color: #0000ff&#34;&gt;type&lt;/span&gt; Task &lt;span style=&#34;color: #0000ff&#34;&gt;interface&lt;/span&gt; {
+    Parse(line &lt;span style=&#34;color: #0000ff&#34;&gt;interface&lt;/span&gt;{}) ([]&lt;span style=&#34;color: #2b91af&#34;&gt;string&lt;/span&gt;, []&lt;span style=&#34;color: #2b91af&#34;&gt;string&lt;/span&gt;, &lt;span style=&#34;color: #2b91af&#34;&gt;error&lt;/span&gt;)
+    Execute(line &lt;span style=&#34;color: #0000ff&#34;&gt;interface&lt;/span&gt;{}) ([]Line, &lt;span style=&#34;color: #2b91af&#34;&gt;error&lt;/span&gt;)
+}
+
+&lt;span style=&#34;color: #0000ff&#34;&gt;func&lt;/span&gt; Register(name &lt;span style=&#34;color: #2b91af&#34;&gt;string&lt;/span&gt;, task Task)
+&lt;span style=&#34;color: #0000ff&#34;&gt;func&lt;/span&gt; Execute(tasklines []Line) &lt;span style=&#34;color: #2b91af&#34;&gt;error&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;With tiny/task it is very easy to define your own tasks, schedule and execute them.  Internally tiny/task handles crc&amp;rsquo;ing input/output files to detect file changes.  It also discovers file dependencies between tasks and ensures that tasks execute in the correct order.&lt;/p&gt;
+
+&lt;p&gt;Here is a simple program that declares a compile task and schedules a task to compile main.c to main.obj.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;package&lt;/span&gt; main
+
+&lt;span style=&#34;color: #0000ff&#34;&gt;import&lt;/span&gt; (
+	&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;os/exec&amp;quot;&lt;/span&gt;
+	&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;tiny/task&amp;quot;&lt;/span&gt;
+)
+
+&lt;span style=&#34;color: #0000ff&#34;&gt;type&lt;/span&gt; CompileData &lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; {
+	SourceFile &lt;span style=&#34;color: #2b91af&#34;&gt;string&lt;/span&gt;
+	ObjectFile &lt;span style=&#34;color: #2b91af&#34;&gt;string&lt;/span&gt;
+}
+
+&lt;span style=&#34;color: #0000ff&#34;&gt;type&lt;/span&gt; CompileTask &lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt;{}
+
+&lt;span style=&#34;color: #0000ff&#34;&gt;func&lt;/span&gt; (*CompileTask) Parse(line &lt;span style=&#34;color: #0000ff&#34;&gt;interface&lt;/span&gt;{}) ([]&lt;span style=&#34;color: #2b91af&#34;&gt;string&lt;/span&gt;, []&lt;span style=&#34;color: #2b91af&#34;&gt;string&lt;/span&gt;, &lt;span style=&#34;color: #2b91af&#34;&gt;error&lt;/span&gt;) {
+	d := line.(CompileData)
+	&lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; []&lt;span style=&#34;color: #2b91af&#34;&gt;string&lt;/span&gt;{d.SourceFile}, []&lt;span style=&#34;color: #2b91af&#34;&gt;string&lt;/span&gt;{d.ObjectFile}, &lt;span style=&#34;color: #0000ff&#34;&gt;nil&lt;/span&gt;
+}
+
+&lt;span style=&#34;color: #0000ff&#34;&gt;func&lt;/span&gt; (*CompileTask) Execute(line &lt;span style=&#34;color: #0000ff&#34;&gt;interface&lt;/span&gt;{}) ([]task.Line, &lt;span style=&#34;color: #2b91af&#34;&gt;error&lt;/span&gt;) {
+	d := line.(CompileData)
+	cmd := exec.Command(&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;cl.exe&amp;quot;&lt;/span&gt;, &lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;-Tp&amp;quot;&lt;/span&gt;, d.SourceFile, &lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;-Fo&amp;quot;&lt;/span&gt;, d.ObjectFile)
+	err := cmd.Run()
+	&lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color: #0000ff&#34;&gt;nil&lt;/span&gt;, err
+}
+
+&lt;span style=&#34;color: #0000ff&#34;&gt;func&lt;/span&gt; main() {
+	task.Register(&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;compile&amp;quot;&lt;/span&gt;, new(CompileTask))
+	taskline := task.Line{&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;compile&amp;quot;&lt;/span&gt;, CompileData{&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;main.c&amp;quot;&lt;/span&gt;, &lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;main.obj&amp;quot;&lt;/span&gt;}}
+	task.Execute([]task.Line{taskline})
+}
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Notes on a Task Based Build System</title>
+      <link>http://mironside.com/post/2015-05-01-notes-on-task-based-build-system/</link>
+      <pubDate>Fri, 01 May 2015 00:00:00 -0600</pubDate>
+      
+      <guid>http://mironside.com/post/2015-05-01-notes-on-task-based-build-system/</guid>
+      <description>
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Line&lt;/strong&gt; - Tasks are defined by Lines which declare the Task name and Task-specific data.  Information can only be passed between Tasks through Lines.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;File&lt;/strong&gt; - Represents a physical file on disk that may be an Input or an Output of a Task.  A File can have a list of File Dependencies, forming a tree.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;FindDependencies&lt;/strong&gt; - A File may have an associated function to find it&amp;rsquo;s dependencies.  For instance, a .c File would have a function to find Files it #includes.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Task&lt;/strong&gt; - A Task consists of it&amp;rsquo;s opaque data object and Parse and Execute functions which perform the actual logic of the Task.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Parse&lt;/strong&gt; - Parses the task data object and returns the list of Input and Output Files.  Parse cannot read Input Files, it only translates the task-specific data into general inputs and outputs used for scheduling.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;HasChanges&lt;/strong&gt; - Determines if any Input, Input Dependencies or Output Files have changed.  If there are no changes the Task does not need to Execute.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Execute&lt;/strong&gt; - Processes the task using the Task data object: reads Input Files and creates Output Files.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;MetaTask&lt;/strong&gt; - Have the same capabilities as a Task but can create new Task Lines that get added to Scheduler when Executed.  Because they create Tasks MetaTasks always Execute.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Task dependencies are implicit based on Input and Output Files.  If Task B uses the File &amp;ldquo;main.obj&amp;rdquo; as Input and Task A outputs &amp;ldquo;main.obj&amp;rdquo; then Task B depends on Task A.  In other words, Task A must complete before Task B can Execute.  The Task Scheduler will only Execute Tasks that have no dependencies or whose dependencies have completed.  When a Task completes the Scheduler re-evaluates to see if any new Tasks can Execute.  This repeats until all Tasks are complete.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:ab3a8221151751c3ca2627c5aea0bb94&#34;&gt;Example&lt;/h2&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say we want to use this task system to build a program.  We want to:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Read a project file to find C source files and target&lt;/li&gt;
+&lt;li&gt;Compile all the C source files to obj files&lt;/li&gt;
+&lt;li&gt;Link the obj files into an executable&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;First is the project Task Line:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;[project, {ProjectFile: myprogram.project}]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This declares the project Task and it&amp;rsquo;s data.  The Task system calls Parse on the data object producing a list of input and output files.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;project
+    Input: myprogram.project
+    Output:
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The project Parse did not produce any Output files so it is considered a MetaTask and must Execute.&lt;/p&gt;
+
+&lt;p&gt;The project Task Executes reading myprogram.project and finds that the target is game.exe and there are three source files: main.c, game.c and input.c.  It creates three compile Task Lines and one link Task Line which are added to the Task queue.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;[compile, {SourceFile: main.c, ObjectFile: main.obj}]
+[compile, {SourceFile: game.c, ObjectFile: game.obj}]
+[compile, {SourceFile: input.c, ObjectFile: input.obj}]
+[link, {ObjectFiles: [main.obj, game.obj, input.obj], Executable: game.exe}]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;These new Tasks are Parsed to determine the Inputs and Outputs from their Task data object.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;compile
+    Inputs: main.c
+    Outputs: main.obj
+
+compile
+    Inputs: game.c
+    Outputs: game.obj
+
+compile
+    Inputs: input.c
+    Outputs: input.obj
+
+link
+    Inputs: [main.obj, game.obj, input.obj]
+    Outputs: game.exe
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The link Task uses the files main.obj, game.obj and input.obj as Inputs which are also the Outputs of the compile Tasks.  Therefore the link Task is implicitly dependent on all three compile Tasks and cannot be run until they complete.  The three compile Tasks do not depend on any other Tasks so they are each Executed.  Since they don&amp;rsquo;t depend on each other they could even Execute in parallel.&lt;/p&gt;
+
+&lt;p&gt;Using main.c as the example, FindDependencies runs and discovers that main.c #includes main.h and game.h (which #includes input.h), these are added as File dependencies.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;compile
+    Inputs: main.c -&amp;gt; [main.h [game.h -&amp;gt; input.h]]
+    Outputs: main.obj
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;The Task is checked for changes.  Inputs main.c main.h game.h and Output main.obj are all unchanged since the last build.  However, the dependency input.h has changed so the Task is Executed compiling main.c into main.obj.&lt;/p&gt;
+
+&lt;p&gt;All three compile Tasks complete and the link Task now has no dependencies.  The Output game.exe matches the previous build but main.obj has changed since it was just re-compiled.  The link Task Executes linking the three object file Inputs into the game.exe Output file.&lt;/p&gt;
+
+&lt;p&gt;With no more tasks in the queue, the build is complete.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Blizzard Build System</title>
+      <link>http://mironside.com/post/2015-04-22-blizzard-build-system/</link>
+      <pubDate>Wed, 22 Apr 2015 00:00:00 -0600</pubDate>
+      
+      <guid>http://mironside.com/post/2015-04-22-blizzard-build-system/</guid>
+      <description>&lt;p&gt;A talk about the build system used by Blizzard.  They use it to build code but it seems like a nice architecture for building assets.&lt;/p&gt;
+
+&lt;p&gt;Video: &lt;a href=&#34;http://www.gdcvault.com/play/1018139/Under-the-Hood-of-Blizzard&#34;&gt;http://www.gdcvault.com/play/1018139/Under-the-Hood-of-Blizzard&lt;/a&gt;
+Slides: &lt;a href=&#34;http://www.gdcvault.com/play/1017943/Under-the-Hood-of-Blizzard&#34;&gt;http://www.gdcvault.com/play/1017943/Under-the-Hood-of-Blizzard&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
