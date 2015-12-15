@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://mironside.com//stylesheets/shiori.css">
+    <link href='//fonts.googleapis.com/css?family=Montserrat:700,400' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Merriweather:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="http://mironside.com//favicon.ico">
+    <title>C&#43;&#43;11 Compile-Time String Hashing | mironside</title>
+    
+    
+
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <div class="navbar-toggle-wrapper visible-xs">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".js-navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <a href="http://mironside.com/" class="navbar-brand">mironside</a>
+        </div>
+        <div class="collapse navbar-collapse js-navbar-collapse">
+          <ul class="navbar-nav nav">
+            <li><a href="http://mironside.com//post">Archive</a></li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+
+<div class="row">
+  <div class="col-sm-8">
+    <div class="post-header">
+      <h1 class="post-title-main">C&#43;&#43;11 Compile-Time String Hashing</h1>
+      <p class="text-muted">Dec 14, 2015</p>
+
+    </div>
+    <div class="post-content">
+      <p>Here is a simple, lightweight implementation of compile-time string hashing in C++11.</p>
+
+<p>I&rsquo;ll start with the basic djb hash function.  This function can be called at runtime to hash a string literal.</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #2b91af">uint32_t</span> hash(<span style="color: #0000ff">const</span> <span style="color: #2b91af">char</span> *str)
+{
+    <span style="color: #2b91af">uint32_t</span> hash = 5381;
+
+    <span style="color: #0000ff">while</span> (*str)
+        hash = hash * 33 + *str++;
+
+    <span style="color: #0000ff">return</span> hash;
+}
+</pre></div>
+
+
+<p>In C++11, <code>constexpr</code> can be used to denote that a function can be evaluated at compile time.  But <code>constexpr</code> also has certain constraints which disallow looping and multiple return statements.  hash can be rewritten as a recursive function to satisfy these <code>constexpr</code> constraints.</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">constexpr</span> <span style="color: #2b91af">uint32_t</span> hash(<span style="color: #0000ff">const</span> <span style="color: #2b91af">char</span> *str, <span style="color: #2b91af">uint32_t</span> hash=5381)
+{
+    <span style="color: #0000ff">return</span> *str == 0 ? hash : hash(str + 1, hash * 33 + *str);
+}
+</pre></div>
+
+
+<p>Now the constexpr hash function can be called to hash a string literal.  This does not guaruntee it is evaluated at compile-time.  In fact, assembly output shows the constexpr still generates a runtime function call.</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #2b91af">uint32_t</span> sid = hash(<span style="color: #a31515">&quot;this is a string test!&quot;</span>);
+</pre></div>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%">	mov	edx, 5381				<span style="color: #008000">; 00001505H</span>
+	lea	rcx, OFFSET FLAT:<span style="color: #0000ff">$</span>SG63574
+	call	?hash@@YAIPEBDI@Z			<span style="color: #008000">; hash</span>
+	mov	<span style="color: #2b91af">DWORD</span> PTR sid$[rsp], eax
+</pre></div>
+</p>
+
+<p>To force the constexpr to be evaluated at compile-time it needs to be called from a compile-time only context.  One solution is to use the constexpr function call as a template parameter.</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">template</span>&lt;<span style="color: #2b91af">uint32_t</span> v&gt;
+<span style="color: #0000ff">struct</span> const_value {
+	<span style="color: #0000ff">static</span> <span style="color: #0000ff">const</span> <span style="color: #2b91af">uint32_t</span> value = v;
+};
+
+<span style="color: #0000ff">#define SID(x) const_value&lt;hash(x)&gt;::value</span>
+
+<span style="color: #2b91af">uint32_t</span> sid = SID(<span style="color: #a31515">&quot;this is a string test!&quot;</span>);
+</pre></div>
+</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%">	mov	<span style="color: #2b91af">DWORD</span> PTR sid$[rsp], 1910223762		<span style="color: #008000">; 71dbb392H</span>
+</pre></div>
+</p>
+
+<p>This forces the hash function to be evaluated at compile-time leaving only the string hash value compiled into the executable.</p>
+
+    </div>
+    <div class="post-footer">
+      <a href="http://mironside.com//post" class="btn btn-primary btn-block btn-lg">View All 6 Articles →</a>
+
+    </div>
+    
+  </div>
+  <div class="col-sm-4">
+    <h3>
+  Author
+</h3>
+
+<p>
+  <div class="media">
+    <img src="http://www.gravatar.com/avatar/22c47048b750bb28fa094fe29483407e?s=100" alt="" class="pull-left">
+    <div class="media-body">
+      <h4 class="media-heading"></h4>
+    </div>
+  </div>
+</p>
+
+<p><a href="https://twitter.com/mironside" class="twitter-follow-button" data-show-screen-name="true" data-show-count="false" data-dnt="true" data-size="large">Follow @mironside</a></p>
+
+  </div>
+</div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy; 2015.
+Built with <a href="http://gohugo.io/">Hugo</a> and
+<a href="https://github.com/chibicode/hugo-theme-shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    <script src="http://mironside.com//javascripts/shiori.js"></script>
+    
+
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+  </body>
+</html>
+

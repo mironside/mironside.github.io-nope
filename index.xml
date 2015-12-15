@@ -6,8 +6,72 @@
     <description>Recent content on mironside</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 23 Sep 2015 00:00:00 -0600</lastBuildDate>
+    <lastBuildDate>Mon, 14 Dec 2015 22:29:27 -0600</lastBuildDate>
     <atom:link href="http://mironside.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>C&#43;&#43;11 Compile-Time String Hashing</title>
+      <link>http://mironside.com/post/2015-12-14-compile-time-string-hashing/</link>
+      <pubDate>Mon, 14 Dec 2015 22:29:27 -0600</pubDate>
+      
+      <guid>http://mironside.com/post/2015-12-14-compile-time-string-hashing/</guid>
+      <description>&lt;p&gt;Here is a simple, lightweight implementation of compile-time string hashing in C++11.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ll start with the basic djb hash function.  This function can be called at runtime to hash a string literal.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #2b91af&#34;&gt;uint32_t&lt;/span&gt; hash(&lt;span style=&#34;color: #0000ff&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color: #2b91af&#34;&gt;char&lt;/span&gt; *str)
+{
+    &lt;span style=&#34;color: #2b91af&#34;&gt;uint32_t&lt;/span&gt; hash = 5381;
+
+    &lt;span style=&#34;color: #0000ff&#34;&gt;while&lt;/span&gt; (*str)
+        hash = hash * 33 + *str++;
+
+    &lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; hash;
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In C++11, &lt;code&gt;constexpr&lt;/code&gt; can be used to denote that a function can be evaluated at compile time.  But &lt;code&gt;constexpr&lt;/code&gt; also has certain constraints which disallow looping and multiple return statements.  hash can be rewritten as a recursive function to satisfy these &lt;code&gt;constexpr&lt;/code&gt; constraints.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;constexpr&lt;/span&gt; &lt;span style=&#34;color: #2b91af&#34;&gt;uint32_t&lt;/span&gt; hash(&lt;span style=&#34;color: #0000ff&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color: #2b91af&#34;&gt;char&lt;/span&gt; *str, &lt;span style=&#34;color: #2b91af&#34;&gt;uint32_t&lt;/span&gt; hash=5381)
+{
+    &lt;span style=&#34;color: #0000ff&#34;&gt;return&lt;/span&gt; *str == 0 ? hash : hash(str + 1, hash * 33 + *str);
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now the constexpr hash function can be called to hash a string literal.  This does not guaruntee it is evaluated at compile-time.  In fact, assembly output shows the constexpr still generates a runtime function call.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #2b91af&#34;&gt;uint32_t&lt;/span&gt; sid = hash(&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;this is a string test!&amp;quot;&lt;/span&gt;);
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;	mov	edx, 5381				&lt;span style=&#34;color: #008000&#34;&gt;; 00001505H&lt;/span&gt;
+	lea	rcx, OFFSET FLAT:&lt;span style=&#34;color: #0000ff&#34;&gt;$&lt;/span&gt;SG63574
+	call	?hash@@YAIPEBDI@Z			&lt;span style=&#34;color: #008000&#34;&gt;; hash&lt;/span&gt;
+	mov	&lt;span style=&#34;color: #2b91af&#34;&gt;DWORD&lt;/span&gt; PTR sid$[rsp], eax
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;To force the constexpr to be evaluated at compile-time it needs to be called from a compile-time only context.  One solution is to use the constexpr function call as a template parameter.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;template&lt;/span&gt;&amp;lt;&lt;span style=&#34;color: #2b91af&#34;&gt;uint32_t&lt;/span&gt; v&amp;gt;
+&lt;span style=&#34;color: #0000ff&#34;&gt;struct&lt;/span&gt; const_value {
+	&lt;span style=&#34;color: #0000ff&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color: #0000ff&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color: #2b91af&#34;&gt;uint32_t&lt;/span&gt; value = v;
+};
+
+&lt;span style=&#34;color: #0000ff&#34;&gt;#define SID(x) const_value&amp;lt;hash(x)&amp;gt;::value&lt;/span&gt;
+
+&lt;span style=&#34;color: #2b91af&#34;&gt;uint32_t&lt;/span&gt; sid = SID(&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;this is a string test!&amp;quot;&lt;/span&gt;);
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;	mov	&lt;span style=&#34;color: #2b91af&#34;&gt;DWORD&lt;/span&gt; PTR sid$[rsp], 1910223762		&lt;span style=&#34;color: #008000&#34;&gt;; 71dbb392H&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;This forces the hash function to be evaluated at compile-time leaving only the string hash value compiled into the executable.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>C API Internal Access Protection</title>
