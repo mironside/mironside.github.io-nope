@@ -31,7 +31,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;In C++11, &lt;code&gt;constexpr&lt;/code&gt; can be used to denote that a function can be evaluated at compile time.  But &lt;code&gt;constexpr&lt;/code&gt; also has certain constraints which disallow looping and multiple return statements.  hash can be rewritten as a recursive function to satisfy these &lt;code&gt;constexpr&lt;/code&gt; constraints.&lt;/p&gt;
+&lt;p&gt;In C++11, &lt;code&gt;constexpr&lt;/code&gt; can be used to denote that a function can be evaluated at compile-time.  But &lt;code&gt;constexpr&lt;/code&gt; also has certain constraints which disallow looping and multiple return statements.  The djb function can be rewritten as recursive to satisfy these &lt;code&gt;constexpr&lt;/code&gt; constraints.&lt;/p&gt;
 
 &lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #0000ff&#34;&gt;constexpr&lt;/span&gt; &lt;span style=&#34;color: #2b91af&#34;&gt;uint32_t&lt;/span&gt; djb(&lt;span style=&#34;color: #0000ff&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color: #2b91af&#34;&gt;char&lt;/span&gt; *str, &lt;span style=&#34;color: #2b91af&#34;&gt;uint32_t&lt;/span&gt; value=5381)
 {
@@ -40,7 +40,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Now the constexpr hash function can be called to hash a string literal.  This does not guaruntee it is evaluated at compile-time.  In fact, assembly output shows the constexpr still generates a runtime function call.&lt;/p&gt;
+&lt;p&gt;The constexpr djb function can be called to hash a string literal but this does not guaruntee it is evaluated at compile-time.  In fact, assembly output shows the constexpr still generates a runtime function call.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span style=&#34;color: #2b91af&#34;&gt;uint32_t&lt;/span&gt; sid = djb(&lt;span style=&#34;color: #a31515&#34;&gt;&amp;quot;this is a string test!&amp;quot;&lt;/span&gt;);
 &lt;/pre&gt;&lt;/div&gt;
@@ -69,7 +69,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/p&gt;
 
-&lt;p&gt;The hash function is evaluated at compile-time leaving only the hashed value compiled into the executable.&lt;/p&gt;
+&lt;p&gt;The djb function is evaluated at compile-time leaving only the hashed value compiled into the executable.&lt;/p&gt;
 
 &lt;p&gt;The compile-time hash construct works with any hash function that fits within the constraints of &lt;code&gt;constexpr&lt;/code&gt;.  Below is the full code for both DJB and CRC32 compile-time hashes.&lt;/p&gt;
 

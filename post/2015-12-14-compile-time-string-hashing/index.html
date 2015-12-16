@@ -61,7 +61,7 @@
 </pre></div>
 
 
-<p>In C++11, <code>constexpr</code> can be used to denote that a function can be evaluated at compile time.  But <code>constexpr</code> also has certain constraints which disallow looping and multiple return statements.  hash can be rewritten as a recursive function to satisfy these <code>constexpr</code> constraints.</p>
+<p>In C++11, <code>constexpr</code> can be used to denote that a function can be evaluated at compile-time.  But <code>constexpr</code> also has certain constraints which disallow looping and multiple return statements.  The djb function can be rewritten as recursive to satisfy these <code>constexpr</code> constraints.</p>
 
 <div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">constexpr</span> <span style="color: #2b91af">uint32_t</span> djb(<span style="color: #0000ff">const</span> <span style="color: #2b91af">char</span> *str, <span style="color: #2b91af">uint32_t</span> value=5381)
 {
@@ -70,7 +70,7 @@
 </pre></div>
 
 
-<p>Now the constexpr hash function can be called to hash a string literal.  This does not guaruntee it is evaluated at compile-time.  In fact, assembly output shows the constexpr still generates a runtime function call.</p>
+<p>The constexpr djb function can be called to hash a string literal but this does not guaruntee it is evaluated at compile-time.  In fact, assembly output shows the constexpr still generates a runtime function call.</p>
 
 <p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #2b91af">uint32_t</span> sid = djb(<span style="color: #a31515">&quot;this is a string test!&quot;</span>);
 </pre></div>
@@ -99,7 +99,7 @@
 </pre></div>
 </p>
 
-<p>The hash function is evaluated at compile-time leaving only the hashed value compiled into the executable.</p>
+<p>The djb function is evaluated at compile-time leaving only the hashed value compiled into the executable.</p>
 
 <p>The compile-time hash construct works with any hash function that fits within the constraints of <code>constexpr</code>.  Below is the full code for both DJB and CRC32 compile-time hashes.</p>
 
