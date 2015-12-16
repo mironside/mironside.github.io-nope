@@ -49,7 +49,7 @@
 
 </div>
 <div class="post-excerpt-home">
-  Here is a simple, lightweight implementation of compile-time string hashing in C++11. I&rsquo;ll start with the basic djb hash function. This function can be called at runtime to hash a string literal. uint32_t hash(const char *str) { uint32_t hash = 5381; while (*str) hash = hash * 33 + *str++; return hash; } In C++11, constexpr can be used to denote that a function can be evaluated at compile time. But constexpr also has certain constraints which disallow looping and multiple return statements.
+  Here is a simple, lightweight implementation of compile-time string hashing in C++11. I&rsquo;ll use the DJB hash function for simplicity. This function can be called at runtime to hash a string literal. uint32_t djb(const char *str) { uint32_t value = 5381; while (*str) value = value * 33 + *str++; return value; } In C++11, constexpr can be used to denote that a function can be evaluated at compile time. But constexpr also has certain constraints which disallow looping and multiple return statements.
   <p class="text-right"><a href="http://mironside.com//post/2015-12-14-compile-time-string-hashing/">Continue Reading &rarr;</a></p>
 </div>
 
