@@ -33,6 +33,7 @@
 &lt;ul&gt;
 &lt;li&gt;XAudio2.h is in the Windows 8 Kit&lt;/li&gt;
 &lt;li&gt;Windows 8 includes XAudio2 dlls for all versions of XAudio2, up to XAudio2_8.dll&lt;/li&gt;
+&lt;li&gt;XAudio2Create is a normal C linkage function that can be grabbed out of a dll&lt;/li&gt;
 &lt;li&gt;Windows 8 (and up) added a parameter to CreateMasteringVoice and removed a few functions from IXAudio2&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;Windows 10
