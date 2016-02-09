@@ -64,7 +64,7 @@
 
 </div>
 <div class="post-excerpt-home">
-  I like C style apis, they&rsquo;re simple and clean. When I create an api I use an underscored prefix to group functions in the same api. C Time API uint64_t Time_GetTicks(); uint64_t Time_GetTickFrequency(); In the source file I group api data in a static struct instance named with the same prefix. static struct Time_ { LARGE_INTEGER timeStart; LARGE_INTEGER timeFrequency; } Time_; The struct type is declared with the same name as the instance so statics and type declarations can be accessed through the same Time_:: namespace.
+  Here&rsquo;s a way to add access protection to a C style set of functions. I&rsquo;m not saying this is a good idea (in fact, it is a chore to maintain). This is just something I was thinking about while longing for a syntactical way to scope data to a given api. For example, how file scope in a C source file is completely hidden (not just &ldquo;private&rdquo;) and totally inaccessible outside the translation unit.
   <p class="text-right"><a href="http://mironside.com//post/2015-09-23-c-api-internal-access-protection/">Continue Reading &rarr;</a></p>
 </div>
 

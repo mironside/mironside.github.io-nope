@@ -47,7 +47,9 @@
     <div class="post-content">
       
 
-<p>I like C style apis, they&rsquo;re simple and clean.  When I create an api I use an underscored prefix to group functions in the same api.</p>
+<p>Here&rsquo;s a way to add access protection to a C style set of functions.  I&rsquo;m not saying this is a good idea (in fact, it is a chore to maintain).  This is just something I was thinking about while longing for a syntactical way to scope data to a given api.  For example, how file scope in a C source file is completely hidden (not just &ldquo;private&rdquo;) and totally inaccessible outside the translation unit.</p>
+
+<p>I like C style apis, they&rsquo;re simple and clean to use.  To start, I prefer using an underscored prefix to group functions in the same api.</p>
 
 <h3 id="c-time-api:d40493909dc16965ed33df035bd64be1">C Time API</h3>
 
@@ -56,7 +58,7 @@
 </pre></div>
 
 
-<p>In the source file I group api data in a static struct instance named with the same prefix.</p>
+<p>In the source file I group &ldquo;private&rdquo; api data in a static struct instance named with the same prefix.</p>
 
 <div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span style="color: #0000ff">static</span> <span style="color: #0000ff">struct</span> Time_ {
 	LARGE_INTEGER timeStart;
