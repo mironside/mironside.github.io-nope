@@ -53,7 +53,7 @@
 
 &lt;p&gt;To support Windows 7 and above I only need the XAudio2.7 api from the June 2010 DirectX SDK.  I only use XAudio2 to create a mastering voice and source voice for submitting raw audio data so I can also strip out all the extra api I don&amp;rsquo;t need.&lt;/p&gt;
 
-&lt;p&gt;To use the custom header it simply needs to be included.  No paths, no compiler configuration.  The XAudio2Create call is a COM macro so no xaudio2.lib even needs to be linked.  The only dependency is that the June 2010 DirectX SDK Redistributible needs to be installed to run on Windows 7 or below.  Windows 8 and up include the correct dlls and will work out of the box.&lt;/p&gt;
+&lt;p&gt;To use the custom header it simply needs to be included.  No paths, no compiler configuration.  The XAudio2Create call is a COM macro so xaudio2.lib doesn&amp;rsquo;t even need to be linked.  The only dependency is that the June 2010 DirectX SDK Redistributible needs to be installed to run on Windows 7 or below.  Windows 8 and up include the correct dlls and will work out of the box.&lt;/p&gt;
 
 &lt;p&gt;Below is the stripped XAudio2 header I use for my own projects hardcoded to compile as C.&lt;/p&gt;
 
