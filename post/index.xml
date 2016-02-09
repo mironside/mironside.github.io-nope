@@ -6,8 +6,60 @@
     <description>Recent content in Posts on mironside</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 14 Dec 2015 22:29:27 -0600</lastBuildDate>
+    <lastBuildDate>Mon, 08 Feb 2016 23:12:05 -0600</lastBuildDate>
     <atom:link href="http://mironside.com/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>XAudio2, Simplified</title>
+      <link>http://mironside.com/post/2016-02-08-xaudio2-simplified/</link>
+      <pubDate>Mon, 08 Feb 2016 23:12:05 -0600</pubDate>
+      
+      <guid>http://mironside.com/post/2016-02-08-xaudio2-simplified/</guid>
+      <description>&lt;p&gt;XAudio2 versions are a mess across Windows 7, 8 and 10.
+&lt;a href=&#34;https://msdn.microsoft.com/en-us/library/windows/desktop/ee415802.aspx&#34;&gt;https://msdn.microsoft.com/en-us/library/windows/desktop/ee415802.aspx&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;XAudio2.h has changed and even broken through each version of Windows which makes it non-trivial to use.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Windows 7
+
+&lt;ul&gt;
+&lt;li&gt;XAudio2.h is not included in the Windows 7 Kit, the June 2010 DirectX SDK needs to be installed&lt;/li&gt;
+&lt;li&gt;XAudio2Create is an inline function from the XAudio2 header which creates the XAudio2 instance using COM&lt;/li&gt;
+&lt;li&gt;The June 2010 DirectX SDK Redistributible needs to be installed on the user&amp;rsquo;s machine to ensure the XAudio2 dll is on the user&amp;rsquo;s machine&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Windows 8
+
+&lt;ul&gt;
+&lt;li&gt;XAudio2.h is in the Windows 8 Kit&lt;/li&gt;
+&lt;li&gt;Windows 8 includes XAudio2 dlls for all versions of XAudio2, up to XAudio2_8.dll&lt;/li&gt;
+&lt;li&gt;Windows 8 (and up) added a parameter to CreateMasteringVoice and removed a few functions from IXAudio2&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Windows 10
+
+&lt;ul&gt;
+&lt;li&gt;XAudio2.h is in the Windows 10 Kit&lt;/li&gt;
+&lt;li&gt;Windows 10 includes XAudio2 dlls for all versions of XAudio2, up to XAudio2_9.dll&lt;/li&gt;
+&lt;li&gt;Compiling the XAudio2 API as C has been broken&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Depending on which version of Windows you are compiling &lt;strong&gt;on&lt;/strong&gt; and which version you are compiling &lt;strong&gt;for&lt;/strong&gt; you may need to install and set a specific set of compiler options.&lt;/p&gt;
+
+&lt;p&gt;This is not great.&lt;/p&gt;
+
+&lt;p&gt;I noticed SDL2 provides it&amp;rsquo;s own XAudio2.h and this seems like a great solution to minimize the configuration necessary to use XAudio2.
+&lt;a href=&#34;http://hg.libsdl.org/SDL/file/c5e3a4f88be9/src/audio/xaudio2/SDL_xaudio2.h&#34;&gt;http://hg.libsdl.org/SDL/file/c5e3a4f88be9/src/audio/xaudio2/SDL_xaudio2.h&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;To support Windows 7 and above I only need the XAudio2.7 api from the June 2010 DirectX SDK.  I only use XAudio2 to create a mastering voice and source voice for submitting raw audio data so I can also strip out all the extra api I don&amp;rsquo;t need.&lt;/p&gt;
+
+&lt;p&gt;To use the custom header it simply needs to be included.  No paths, no compiler configuration.  The XAudio2Create call is a COM macro so no xaudio2.lib even needs to be linked.  The only dependency is that the June 2010 DirectX SDK Redistributible needs to be installed to run on Windows 7 or below.  Windows 8 and up include the correct dlls and will work out of the box.&lt;/p&gt;
+
+&lt;p&gt;Below is the stripped XAudio2 header I use for my own projects hardcoded to compile as C.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://mironside.com/static/xaudio2.h&#34;&gt;xaudio2.h&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>C&#43;&#43;11 Compile-Time String Hashing</title>
